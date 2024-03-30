@@ -91,15 +91,12 @@ class ViPERManager @Inject constructor(
                     }
 
                     override fun onRouteRemoved(router: MediaRouter, route: MediaRouter.RouteInfo) {
-                        if (router.selectedRoute == route) {
-                            router.unselect(MediaRouter.UNSELECT_REASON_UNKNOWN)
-                        }
+                        router.unselect(MediaRouter.UNSELECT_REASON_UNKNOWN)
                     }
                 }
 
                 val selector = MediaRouteSelector.Builder()
                     .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                    .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
                     .build()
                 mediaRouter.addCallback(selector, callback, 0)
 
