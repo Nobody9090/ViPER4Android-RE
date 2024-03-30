@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.vm.AnalogXViewModel
 
 @Composable
@@ -17,11 +17,11 @@ fun AnalogXEffect(
     val enabled = viewModel.enabled.collectAsState().value
     val level = viewModel.level.collectAsState().value
 
-    EffectCard(
+    Effect(
         icon = painterResource(R.drawable.ic_analogx),
-        name = "AnalogX",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+        title = "AnalogX",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValueSlider(

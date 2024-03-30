@@ -2,18 +2,15 @@ package com.aam.viper4android.ui.effect
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.ui.component.ValuePicker
 import com.aam.viper4android.vm.ViPERClarityViewModel
 
@@ -38,11 +35,11 @@ fun ViPERClarityEffect(
     val mode = viewModel.mode.collectAsState().value
     val gain = viewModel.gain.collectAsState().value
     
-    EffectCard(
+    Effect(
         icon = painterResource(R.drawable.ic_clarity),
-        name = stringResource(R.string.viper_clarity),
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+        title = stringResource(R.string.viper_clarity),
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)

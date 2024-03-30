@@ -7,9 +7,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.Effect
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.vm.MasterLimiterViewModel
 
 private val outputGainSummaryValues = arrayOf(
@@ -54,11 +54,9 @@ fun MasterLimiterEffect(
     val outputPan = viewModel.outputPan.collectAsState().value
     val thresholdLimit = viewModel.thresholdLimit.collectAsState().value
     
-    EffectCard(
-        icon = painterResource(R.drawable.ic_power),
-        name = "Master limiter",
-        enabled = null,
-        onEnabledChange = null
+    Effect(
+        icon = painterResource(R.drawable.ic_master_limiter),
+        title = "Master limiter",
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),

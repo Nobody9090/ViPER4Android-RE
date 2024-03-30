@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.vm.SpectrumExtensionViewModel
 
 @Composable
@@ -17,11 +17,11 @@ fun SpectrumExtensionEffect(
     val enabled = viewModel.enabled.collectAsState().value
     val strength = viewModel.strength.collectAsState().value
 
-    EffectCard(
-        icon = painterResource(R.drawable.ic_vse),
-        name = "Spectrum extension",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+    Effect(
+        icon = painterResource(R.drawable.ic_spectrum),
+        title = "Spectrum extension",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValueSlider(

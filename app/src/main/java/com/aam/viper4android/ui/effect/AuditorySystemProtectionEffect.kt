@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
 import com.aam.viper4android.vm.AuditorySystemProtectionViewModel
 
@@ -14,10 +14,10 @@ fun AuditorySystemProtectionEffect(
 ) {
     val enabled = viewModel.enabled.collectAsState().value
 
-    EffectCard(
+    Effect(
         icon = painterResource(R.drawable.ic_protection),
-        name = "Auditory system protection",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+        title = "Auditory system protection",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     )
 }

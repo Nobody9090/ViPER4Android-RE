@@ -6,12 +6,17 @@ import android.content.Intent
 import android.media.audiofx.AudioEffect
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.aam.viper4android.SettingsRepository
 import com.aam.viper4android.ViPERService
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "SessionReceiver"
 
+@AndroidEntryPoint
 class SessionReceiver : BroadcastReceiver() {
+    lateinit var settingsRepository: SettingsRepository
+
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
         if (intent.action != AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION &&

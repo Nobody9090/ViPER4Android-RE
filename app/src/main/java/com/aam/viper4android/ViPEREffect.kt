@@ -18,7 +18,7 @@ import java.nio.ByteOrder
 import java.util.UUID
 
 class ViPEREffect(sessionId: Int) {
-    val audioEffect = AudioEffectKtx(UUID_NULL, VIPER_UUID, 0, sessionId)
+    val audioEffect = AudioEffectKtx(NULL_UUID, VIPER_UUID, 0, sessionId)
 
     val status = Status()
     val masterLimiter = MasterLimiter()
@@ -187,7 +187,7 @@ class ViPEREffect(sessionId: Int) {
     }
 
     companion object {
-        private val UUID_NULL = UUID.fromString("ec7178ec-e5e1-4432-a3f4-4657e6795210")
+        private val NULL_UUID = UUID.fromString("ec7178ec-e5e1-4432-a3f4-4657e6795210")
         val VIPER_UUID = UUID.fromString("90380da3-8536-4744-a6a3-5731970e640f")
 
         // typedef enum {

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
 import com.aam.viper4android.vm.TubeSimulator6N1JViewModel
 
@@ -14,10 +14,10 @@ fun TubeSimulator6N1JEffect(
 ) {
     val enabled = viewModel.enabled.collectAsState().value
 
-    EffectCard(
-        icon = painterResource(R.drawable.ic_tubeamp),
-        name = "Tube simulator (6N1J)",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+    Effect(
+        icon = painterResource(R.drawable.ic_tube),
+        title = "Tube simulator (6N1J)",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     )
 }

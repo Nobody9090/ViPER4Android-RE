@@ -10,9 +10,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.ui.component.ValuePicker
 import com.aam.viper4android.vm.ViPERBassViewModel
 
@@ -40,11 +40,11 @@ fun ViPERBassEffect(
     val frequency = viewModel.frequency.collectAsState().value
     val gain = viewModel.gain.collectAsState().value
     
-    EffectCard(
+    Effect(
         icon = painterResource(R.drawable.ic_bass),
-        name = stringResource(R.string.viper_bass),
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+        title = stringResource(R.string.viper_bass),
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValuePicker(

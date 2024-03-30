@@ -6,9 +6,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.vm.HeadphoneSurroundPlusViewModel
 
 @Composable
@@ -18,11 +18,11 @@ fun HeadphoneSurroundPlusEffect(
     val enabled = viewModel.enabled.collectAsState().value
     val level = viewModel.level.collectAsState().value
 
-    EffectCard(
-        icon = painterResource(R.drawable.ic_headphone_surround),
-        name = stringResource(R.string.headphone_surround_plus),
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+    Effect(
+        icon = painterResource(R.drawable.ic_hp_surround),
+        title = stringResource(R.string.headphone_surround_plus),
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValueSlider(

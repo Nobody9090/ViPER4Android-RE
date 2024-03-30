@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.vm.FieldSurroundViewModel
 
 @Composable
@@ -18,11 +18,11 @@ fun FieldSurroundEffect(
     val surroundStrength = viewModel.surroundStrength.collectAsState().value
     val midImageStrength = viewModel.midImageStrength.collectAsState().value
     
-    EffectCard(
-        icon = painterResource(R.drawable.ic_surround),
-        name = "Field surround",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+    Effect(
+        icon = painterResource(R.drawable.ic_field_surround),
+        title = "Field surround",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValueSlider(

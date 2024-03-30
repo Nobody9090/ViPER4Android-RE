@@ -8,7 +8,7 @@ import com.aam.viper4android.util.HiddenApi
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class ViPERApp : Application() {
+class ViPERApplication : Application() {
     companion object {
         const val SERVICES_CHANNEL_ID = "services_channel"
     }

@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
 import com.aam.viper4android.R
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.vm.ConvolverViewModel
 
 @Composable
@@ -14,10 +14,10 @@ fun ConvolverEffect(
 ) {
     val enabled = viewModel.enabled.collectAsState().value
 
-    EffectCard(
+    Effect(
         icon = painterResource(R.drawable.ic_convolver),
-        name = "Convolver",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+        title = "Convolver",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     )
 }

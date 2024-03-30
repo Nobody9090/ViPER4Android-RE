@@ -133,7 +133,7 @@ class ViPERService : LifecycleService() {
         else
             getSessionAppLabelsString()
 
-        return NotificationCompat.Builder(this, ViPERApp.SERVICES_CHANNEL_ID)
+        return NotificationCompat.Builder(this, ViPERApplication.SERVICES_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_notification)

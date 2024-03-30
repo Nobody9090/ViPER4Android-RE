@@ -5,9 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.ui.component.ValuePicker
 import com.aam.viper4android.vm.DynamicSystemViewModel
 
@@ -19,10 +19,10 @@ fun DynamicSystemEffect(
     val deviceType = viewModel.deviceType.collectAsState().value
     val dynamicBassStrength = viewModel.dynamicBassStrength.collectAsState().value
 
-    EffectCard(icon = painterResource(R.drawable.ic_dynamic_system),
-        name = "Dynamic system",
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+    Effect(icon = painterResource(R.drawable.ic_dynamic),
+        title = "Dynamic system",
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValuePicker(

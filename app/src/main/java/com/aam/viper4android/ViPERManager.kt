@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.mediarouter.media.MediaControlIntent
 import androidx.mediarouter.media.MediaRouteSelector
 import androidx.mediarouter.media.MediaRouter
-import com.aam.viper4android.ktx.asPreset
+import com.aam.viper4android.ktx.toPreset
 import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.persistence.PresetsDao
 import com.aam.viper4android.persistence.SessionDao
@@ -154,7 +154,7 @@ class ViPERManager @Inject constructor(
 
     private suspend fun getPresetForRoute(route: ViPERRoute): Preset {
         return withContext(Dispatchers.IO) {
-            presetDao.get(route.getId())?.asPreset()
+            presetDao.get(route.getId())?.toPreset()
         } ?: Preset()
     }
 

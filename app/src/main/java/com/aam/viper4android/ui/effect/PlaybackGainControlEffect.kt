@@ -6,9 +6,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.EffectCard
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
+import com.aam.viper4android.ui.component.ValueSlider
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.vm.PlaybackGainControlViewModel
 
 @Composable
@@ -20,11 +20,11 @@ fun PlaybackGainControlEffect(
 //    val gain = viewModel.gain.collectAsState().value
 //    val threshold = viewModel.threshold.collectAsState().value
 
-    EffectCard(
-        icon = painterResource(R.drawable.ic_playback_control),
-        name = stringResource(R.string.playback_gain_control),
-        enabled = enabled,
-        onEnabledChange = viewModel::setEnabled
+    Effect(
+        icon = painterResource(R.drawable.ic_playback_gain),
+        title = stringResource(R.string.playback_gain_control),
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
     ) {
         Column {
             ValueSlider(

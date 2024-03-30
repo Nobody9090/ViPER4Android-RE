@@ -83,7 +83,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
     implementation("androidx.compose.material3:material3:1.2.1")
-    implementation("androidx.compose.material:material-icons-extended:1.6.3")
+    implementation("androidx.compose.material:material-icons-extended:1.6.4")
 
     // Android X Miscellaneous
     implementation("androidx.core:core-ktx:1.12.0")
@@ -91,10 +91,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
     implementation("androidx.navigation:navigation-compose:$navVersion")
-    implementation("androidx.mediarouter:mediarouter:1.6.0")
+    implementation("androidx.mediarouter:mediarouter:1.7.0")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
@@ -104,6 +104,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
 
     implementation("androidx.lifecycle:lifecycle-service:2.7.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Test
     testImplementation("junit:junit:4.13.2")
