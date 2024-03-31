@@ -10,31 +10,44 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
-import com.aam.viper4android.ui.component.EqualizerPreview
-import com.aam.viper4android.ui.component.ScrollableEqualizerEditor
+import com.aam.viper4android.ui.component.eq.EqualizerBottomSheet
+import com.aam.viper4android.ui.component.eq.EqualizerBottomSheetPreview
+import com.aam.viper4android.ui.component.eq.EqualizerPreview
 import com.aam.viper4android.vm.FIREqualizerViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FIREqualizerEffect(
     viewModel: FIREqualizerViewModel = hiltViewModel()
 ) {
     val enabled = viewModel.enabled.collectAsState().value
+    val gains = viewModel.gains.collectAsState().value
+
+    var showEditorDialog by rememberSaveable { mutableStateOf(false) }
     
     Effect(
         icon = painterResource(R.drawable.ic_equalizer),
@@ -88,12 +101,30 @@ fun FIREqualizerEffect(
                 )
             }
             Spacer(Modifier.height(18.dp))
-            ScrollableEqualizerEditor(
-                modifier = Modifier.height(500.dp).fillMaxWidth(),
-                gains = floatArrayOf(
-                    0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-                )
+            EqualizerPreview(
+                modifier = Modifier
+                    .height(300.dp)
+                    .fillMaxWidth()
+                    .clickable { showEditorDialog = true },
+                gains = gains
             )
         }
+    }
+
+    if (showEditorDialog) {
+        val density = LocalDensity.current
+        val sheetState = remember {
+            SheetState(
+                skipPartiallyExpanded = true,
+                density = density,
+                initialValue = SheetValue.Expanded,
+                { false },
+                skipHiddenState = true
+            )
+        }
+        EqualizerBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = { showEditorDialog = false }
+        )
     }
 }

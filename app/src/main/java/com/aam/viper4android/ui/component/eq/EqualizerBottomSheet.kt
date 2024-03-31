@@ -1,4 +1,4 @@
-package com.aam.viper4android.ui.component
+package com.aam.viper4android.ui.component.eq
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -34,11 +35,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.aam.viper4android.R
+import com.aam.viper4android.ui.component.BottomSheet
+import com.aam.viper4android.ui.component.EqualizerEditor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EqualizerBottomSheet(
     sheetState: SheetState,
+    onDismissRequest: () -> Unit
 ) {
     val view = LocalView.current
     val systemBarsInsets = remember(view) {
@@ -55,7 +59,7 @@ fun EqualizerBottomSheet(
     }
 
     BottomSheet(
-        onDismissRequest = { /*TODO*/ },
+        onDismissRequest = onDismissRequest,
 //        sheetState = sheetState,
         windowInsets = systemBarsInsets ?: BottomSheetDefaults.windowInsets,
     ) {
@@ -96,31 +100,52 @@ fun EqualizerBottomSheet(
                 }
             }
 
-            ScrollableEqualizerEditor(
+            var gains by remember {
+                mutableStateOf(listOf(
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                    0.0f,
+                ))
+            }
+
+            EqualizerEditor(
                 modifier = Modifier
                     .height(380.dp)
                     .fillMaxWidth(),
-                gains = floatArrayOf(
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                )
+                gains = gains,
+                onGainsChanged = { gains = it }
             )
 
             Button(
-                onClick = {  },
+                onClick = onDismissRequest,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp)
@@ -146,6 +171,7 @@ fun EqualizerBottomSheetPreview() {
         )
     }
     EqualizerBottomSheet(
-        sheetState = sheetState
+        sheetState = sheetState,
+        onDismissRequest = { }
     )
 }

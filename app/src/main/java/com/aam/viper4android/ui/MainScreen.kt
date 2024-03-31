@@ -43,9 +43,6 @@ import com.aam.viper4android.R
 import com.aam.viper4android.RenamePresetDialog
 import com.aam.viper4android.StatusDialog
 import com.aam.viper4android.ViPERService
-import com.aam.viper4android.ui.component.BottomSheet
-import com.aam.viper4android.ui.component.EqualizerBottomSheet
-import com.aam.viper4android.ui.component.EqualizerBottomSheetPreview
 import com.aam.viper4android.ui.component.SwitchBar
 import com.aam.viper4android.ui.effect.AnalogXEffect
 import com.aam.viper4android.ui.effect.AuditorySystemProtectionEffect
@@ -144,7 +141,7 @@ fun MainScreen(
 //        ) {
 //            Text("Hello, Bottom Sheet!")
 //        }
-        EqualizerBottomSheetPreview()
+//        EqualizerBottomSheetPreview()
 
         Column(
             modifier = Modifier

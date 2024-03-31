@@ -1,6 +1,6 @@
 package com.aam.viper4android.view
 
-import com.aam.viper4android.eq.EqualizerHelper
+import com.aam.viper4android.ui.component.eq.EqualizerHelper
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin

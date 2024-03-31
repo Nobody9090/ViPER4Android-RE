@@ -13,18 +13,33 @@ import javax.inject.Inject
 class FIREqualizerViewModel @Inject constructor(
     private val viperManager: ViPERManager,
 ) : ViewModel() {
-    private val _enabled = MutableStateFlow(false)
-    val enabled = _enabled.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            viperManager.currentPreset.collect { preset ->
-                _enabled.value = preset.firEqualizer.enabled
-            }
-        }
-    }
+    val enabled = viperManager.firEqualizer.enabled
+    val gains = MutableStateFlow(listOf(
+        10.0f, -1.0f, 8.0f, 6.0f, -9.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+        0f,
+    ))
 
     fun setEnabled(enabled: Boolean) {
-        _enabled.value = enabled
+        viperManager.firEqualizer.setEnabled(enabled)
     }
 }
