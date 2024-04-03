@@ -33,7 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.aam.viper4android.ui.component.eq.EqualizerHelper
-import java.util.Locale
 import kotlin.math.min
 import kotlin.math.roundToInt
 

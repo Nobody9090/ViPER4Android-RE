@@ -6,8 +6,8 @@ import android.util.Log
 import androidx.mediarouter.media.MediaControlIntent
 import androidx.mediarouter.media.MediaRouteSelector
 import androidx.mediarouter.media.MediaRouter
-import com.aam.viper4android.ktx.toPreset
 import com.aam.viper4android.ktx.getBootCount
+import com.aam.viper4android.ktx.toPreset
 import com.aam.viper4android.persistence.PresetsDao
 import com.aam.viper4android.persistence.SessionDao
 import com.aam.viper4android.persistence.ViPERSettings
@@ -43,7 +43,7 @@ class ViPERManager @Inject constructor(
     private var _currentSessions = MutableStateFlow<List<Session>>(emptyList())
     val currentSessions = _currentSessions.asStateFlow()
 
-    private val _enabled = MutableStateFlow(false)
+    private val _enabled = MutableStateFlow(Preset.DEFAULT_ENABLED)
     val enabled = _enabled.asStateFlow()
     val analogX = AnalogX()
     val auditorySystemProtection = AuditorySystemProtection()
@@ -234,10 +234,10 @@ class ViPERManager @Inject constructor(
     }
 
     inner class AnalogX {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.AnalogX.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _level = MutableStateFlow(0)
+        private val _level = MutableStateFlow(Preset.AnalogX.DEFAULT_LEVEL)
         val level = _level.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -258,7 +258,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class AuditorySystemProtection {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.AuditorySystemProtection.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -271,7 +271,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class Convolver {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.Convolver.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -284,10 +284,10 @@ class ViPERManager @Inject constructor(
     }
 
     inner class DifferentialSurround {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.DifferentialSurround.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _delay = MutableStateFlow<UShort>(4u)
+        private val _delay = MutableStateFlow(Preset.DifferentialSurround.DEFAULT_DELAY)
         val delay = _delay.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -298,7 +298,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setDelay(delay: UShort) {
+        fun setDelay(delay: Int) {
             _delay.value = delay
             if (_currentPreset.value.differentialSurround.delay != delay) {
                 _currentPreset.value.differentialSurround.delay = delay
@@ -308,13 +308,13 @@ class ViPERManager @Inject constructor(
     }
 
     inner class DynamicSystem {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.DynamicSystem.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _deviceType = MutableStateFlow(0)
+        private val _deviceType = MutableStateFlow(Preset.DynamicSystem.DEFAULT_DEVICE_TYPE)
         val deviceType = _deviceType.asStateFlow()
 
-        private val _dynamicBassStrength = MutableStateFlow(0)
+        private val _dynamicBassStrength = MutableStateFlow(Preset.DynamicSystem.DEFAULT_DYNAMIC_BASS_STRENGTH)
         val dynamicBassStrength = _dynamicBassStrength.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -343,7 +343,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class FETCompressor {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.FETCompressor.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -356,13 +356,13 @@ class ViPERManager @Inject constructor(
     }
 
     inner class FieldSurroundEffect {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.FieldSurroundEffect.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _surroundStrength = MutableStateFlow(0)
+        private val _surroundStrength = MutableStateFlow(Preset.FieldSurroundEffect.DEFAULT_SURROUND_STRENGTH)
         val surroundStrength = _surroundStrength.asStateFlow()
 
-        private val _midImageStrength = MutableStateFlow(5)
+        private val _midImageStrength = MutableStateFlow(Preset.FieldSurroundEffect.DEFAULT_MID_IMAGE_STRENGTH)
         val midImageStrength = _midImageStrength.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -391,7 +391,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class FIREqualizer {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.FIREqualizer.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -404,10 +404,10 @@ class ViPERManager @Inject constructor(
     }
 
     inner class HeadphoneSurroundPlus {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.HeadphoneSurroundPlus.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _level = MutableStateFlow<UByte>(0u)
+        private val _level = MutableStateFlow<Int>(0)
         val level = _level.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -418,7 +418,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setLevel(level: UByte) {
+        fun setLevel(level: Int) {
             _level.value = level
             if (_currentPreset.value.headphoneSurroundPlus.level != level) {
                 _currentPreset.value.headphoneSurroundPlus.level = level
@@ -428,16 +428,16 @@ class ViPERManager @Inject constructor(
     }
 
     inner class MasterLimiter {
-        private val _outputGain = MutableStateFlow<UByte>(100u)
+        private val _outputGain = MutableStateFlow(Preset.MasterLimiter.DEFAULT_OUTPUT_GAIN)
         val outputGain = _outputGain.asStateFlow()
 
-        private val _outputPan = MutableStateFlow<UByte>(50u)
+        private val _outputPan = MutableStateFlow(Preset.MasterLimiter.DEFAULT_OUTPUT_PAN)
         val outputPan = _outputPan.asStateFlow()
 
-        private val _thresholdLimit = MutableStateFlow<UByte>(100u)
+        private val _thresholdLimit = MutableStateFlow(Preset.MasterLimiter.DEFAULT_THRESHOLD_LIMIT)
         val thresholdLimit = _thresholdLimit.asStateFlow()
 
-        fun setOutputGain(outputGain: UByte) {
+        fun setOutputGain(outputGain: Int) {
             _outputGain.value = outputGain
             if (_currentPreset.value.masterLimiter.outputGain != outputGain) {
                 _currentPreset.value.masterLimiter.outputGain = outputGain
@@ -445,7 +445,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setOutputPan(outputPan: UByte) {
+        fun setOutputPan(outputPan: Int) {
             _outputPan.value = outputPan
             if (_currentPreset.value.masterLimiter.outputPan != outputPan) {
                 _currentPreset.value.masterLimiter.outputPan = outputPan
@@ -453,7 +453,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setThresholdLimit(thresholdLimit: UByte) {
+        fun setThresholdLimit(thresholdLimit: Int) {
             _thresholdLimit.value = thresholdLimit
             if (_currentPreset.value.masterLimiter.thresholdLimit != thresholdLimit) {
                 _currentPreset.value.masterLimiter.thresholdLimit = thresholdLimit
@@ -463,7 +463,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class PlaybackGainControl {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.PlaybackGainControl.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -476,22 +476,22 @@ class ViPERManager @Inject constructor(
     }
 
     inner class Reverberation {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.Reverberation.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _roomSize = MutableStateFlow<UByte>(0u)
+        private val _roomSize = MutableStateFlow(Preset.Reverberation.DEFAULT_ROOM_SIZE)
         val roomSize = _roomSize.asStateFlow()
 
-        private val _soundField = MutableStateFlow<UByte>(0u)
+        private val _soundField = MutableStateFlow(Preset.Reverberation.DEFAULT_SOUND_FIELD)
         val soundField = _soundField.asStateFlow()
 
-        private val _damping = MutableStateFlow<UByte>(0u)
+        private val _damping = MutableStateFlow(Preset.Reverberation.DEFAULT_DAMPING)
         val damping = _damping.asStateFlow()
 
-        private val _wetSignal = MutableStateFlow<UByte>(0u)
+        private val _wetSignal = MutableStateFlow(Preset.Reverberation.DEFAULT_WET_SIGNAL)
         val wetSignal = _wetSignal.asStateFlow()
 
-        private val _drySignal = MutableStateFlow<UByte>(50u)
+        private val _drySignal = MutableStateFlow(Preset.Reverberation.DEFAULT_DRY_SIGNAL)
         val drySignal = _drySignal.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -502,7 +502,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setRoomSize(roomSize: UByte) {
+        fun setRoomSize(roomSize: Int) {
             _roomSize.value = roomSize
             if (_currentPreset.value.reverberation.roomSize != roomSize) {
                 _currentPreset.value.reverberation.roomSize = roomSize
@@ -510,7 +510,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setSoundField(soundField: UByte) {
+        fun setSoundField(soundField: Int) {
             _soundField.value = soundField
             if (_currentPreset.value.reverberation.soundField != soundField) {
                 _currentPreset.value.reverberation.soundField = soundField
@@ -518,7 +518,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setDamping(damping: UByte) {
+        fun setDamping(damping: Int) {
             _damping.value = damping
             if (_currentPreset.value.reverberation.damping != damping) {
                 _currentPreset.value.reverberation.damping = damping
@@ -526,7 +526,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setWetSignal(wetSignal: UByte) {
+        fun setWetSignal(wetSignal: Int) {
             _wetSignal.value = wetSignal
             if (_currentPreset.value.reverberation.wetSignal != wetSignal) {
                 _currentPreset.value.reverberation.wetSignal = wetSignal
@@ -534,7 +534,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setDrySignal(drySignal: UByte) {
+        fun setDrySignal(drySignal: Int) {
             _drySignal.value = drySignal
             if (_currentPreset.value.reverberation.drySignal != drySignal) {
                 _currentPreset.value.reverberation.drySignal = drySignal
@@ -544,7 +544,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class SpeakerOptimization {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.SpeakerOptimization.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -557,10 +557,10 @@ class ViPERManager @Inject constructor(
     }
 
     inner class SpectrumExtension {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.SpectrumExtension.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _strength = MutableStateFlow<UByte>(10u)
+        private val _strength = MutableStateFlow(Preset.SpectrumExtension.DEFAULT_STRENGTH)
         val strength = _strength.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -571,7 +571,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setStrength(strength: UByte) {
+        fun setStrength(strength: Int) {
             _strength.value = strength
             if (_currentPreset.value.spectrumExtension.strength != strength) {
                 _currentPreset.value.spectrumExtension.strength = strength
@@ -581,7 +581,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class TubeSimulator6N1J {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.TubeSimulator6N1J.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -594,16 +594,16 @@ class ViPERManager @Inject constructor(
     }
 
     inner class ViPERBass {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.ViPERBass.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _mode = MutableStateFlow<UByte>(0u)
+        private val _mode = MutableStateFlow(Preset.ViPERBass.DEFAULT_MODE)
         val mode = _mode.asStateFlow()
 
-        private val _frequency = MutableStateFlow<UByte>(15u)
+        private val _frequency = MutableStateFlow(Preset.ViPERBass.DEFAULT_FREQUENCY)
         val frequency = _frequency.asStateFlow()
 
-        private val _gain = MutableStateFlow<UShort>(50u)
+        private val _gain = MutableStateFlow(Preset.ViPERBass.DEFAULT_GAIN)
         val gain = _gain.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -614,7 +614,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setMode(mode: UByte) {
+        fun setMode(mode: Int) {
             _mode.value = mode
             if (_currentPreset.value.viperBass.mode != mode) {
                 _currentPreset.value.viperBass.mode = mode
@@ -622,7 +622,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setFrequency(frequency: UByte) {
+        fun setFrequency(frequency: Int) {
             _frequency.value = frequency
             if (_currentPreset.value.viperBass.frequency != frequency) {
                 _currentPreset.value.viperBass.frequency = frequency
@@ -630,7 +630,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setGain(bassGain: UShort) {
+        fun setGain(bassGain: Int) {
             _gain.value = bassGain
             if (_currentPreset.value.viperBass.gain != bassGain) {
                 _currentPreset.value.viperBass.gain = bassGain
@@ -640,13 +640,13 @@ class ViPERManager @Inject constructor(
     }
 
     inner class ViPERClarity {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.ViPERClarity.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _mode = MutableStateFlow<UByte>(0u)
+        private val _mode = MutableStateFlow(Preset.ViPERClarity.DEFAULT_MODE)
         val mode = _mode.asStateFlow()
 
-        private val _gain = MutableStateFlow<UShort>(1u)
+        private val _gain = MutableStateFlow(Preset.ViPERClarity.DEFAULT_GAIN)
         val gain = _gain.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -657,7 +657,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setMode(mode: UByte) {
+        fun setMode(mode: Int) {
             _mode.value = mode
             if (_currentPreset.value.viperClarity.mode != mode) {
                 _currentPreset.value.viperClarity.mode = mode
@@ -665,7 +665,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setGain(gain: UShort) {
+        fun setGain(gain: Int) {
             _gain.value = gain
             if (_currentPreset.value.viperClarity.gain != gain) {
                 _currentPreset.value.viperClarity.gain = gain
@@ -675,7 +675,7 @@ class ViPERManager @Inject constructor(
     }
 
     inner class ViPERDDC {
-        private val _enabled = MutableStateFlow(false)
+        private val _enabled = MutableStateFlow(Preset.ViPERDDC.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {

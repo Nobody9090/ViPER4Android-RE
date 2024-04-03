@@ -6,8 +6,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.ui.component.Effect
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.vm.FieldSurroundViewModel
 
 @Composable

@@ -3,6 +3,7 @@ package com.aam.viper4android
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -25,201 +26,83 @@ data class Session(
     }
 
     private fun collectEffects() {
-        scope.launch {
-            viperManager.enabled.collect {
-                effect.audioEffect.enabled = it
-            }
+        collect(viperManager.enabled, effect.audioEffect::setEnabled)
+        collect(viperManager.analogX.enabled, effect.analogX::setEnabled)
+        collect(viperManager.auditorySystemProtection.enabled, effect.auditorySystemProtection::setEnabled)
+        collect(viperManager.differentialSurround.enabled, effect.differentialSurround::setEnabled)
+        collect(viperManager.differentialSurround.delay) {
+            effect.differentialSurround.setDelay(it.toUShort())
         }
-        scope.launch {
-            viperManager.analogX.enabled.collect {
-                effect.analogX.setEnabled(it)
-            }
+        collect(viperManager.firEqualizer.enabled, effect.iirEqualizer::setEnabled)
+        collect(viperManager.headphoneSurroundPlus.enabled, effect.headphoneSurroundPlus::setEnabled)
+        collect(viperManager.headphoneSurroundPlus.level) {
+            effect.headphoneSurroundPlus.setLevel(it.toUByte())
         }
-        scope.launch {
-            viperManager.analogX.level.collect {
-//                effect.analogX.level = it
-            }
-        }
-        scope.launch {
-            viperManager.auditorySystemProtection.enabled.collect {
-                effect.auditorySystemProtection.setEnabled(it)
-            }
-        }
-        scope.launch {
-            viperManager.convolver.enabled.collect {
-                effect.convolver.enabled = it
-            }
-        }
-        scope.launch {
-            viperManager.differentialSurround.enabled.collect {
-                effect.differentialSurround.setEnabled(it)
-            }
-        }
-        scope.launch {
-            viperManager.differentialSurround.delay.collect {
-                effect.differentialSurround.setDelay(it)
-            }
-        }
-        scope.launch {
-            viperManager.dynamicSystem.enabled.collect {
-                effect.dynamicSystem.enabled = it
-            }
-        }
-        scope.launch {
-            viperManager.dynamicSystem.deviceType.collect {
-//                effect.dynamicSystem.deviceType = it
-            }
-        }
-        scope.launch {
-            viperManager.dynamicSystem.dynamicBassStrength.collect {
-//                effect.dynamicSystem.dynamicBassStrength = it
-            }
-        }
-        scope.launch {
-            viperManager.fetCompressor.enabled.collect {
-                effect.fetCompressor.enabled = it
-            }
-        }
-        scope.launch {
-            viperManager.fieldSurroundEffect.enabled.collect {
-//                effect.fieldSurroundEffect.enabled = it
-            }
-        }
-        scope.launch {
-            viperManager.fieldSurroundEffect.surroundStrength.collect {
-//                effect.fieldSurroundEffect.surroundStrength = it
-            }
-        }
-        scope.launch {
-            viperManager.fieldSurroundEffect.midImageStrength.collect {
-//                effect.fieldSurroundEffect.midImageStrength = it
-            }
-        }
-        scope.launch {
-            viperManager.firEqualizer.enabled.collect {
-                effect.iirEqualizer.setEnabled(it)
-            }
-        }
-        scope.launch {
-            viperManager.headphoneSurroundPlus.enabled.collect {
-                effect.headphoneSurroundPlus.setEnabled(it)
-            }
-        }
-        scope.launch {
-            viperManager.headphoneSurroundPlus.level.collect {
-                effect.headphoneSurroundPlus.setLevel(it)
-            }
-        }
-        scope.launch {
-            // collect outputGain and outputPan together to perform operations on them
-            viperManager.masterLimiter.outputGain.combine(viperManager.masterLimiter.outputPan) { gain, pan ->
+
+        collect(
+            viperManager.masterLimiter.outputGain
+                .combine(viperManager.masterLimiter.outputPan) { gain, pan ->
                     gain to pan
-                }.collect { (gain, pan) ->
-                    val panL = if (pan < 50u) 1.0f else ((100.0f - pan.toFloat()) / 50.0f)
-                    val panR = if (pan > 50u) 1.0f else (pan.toFloat() / 50.0f)
-                    val gainL = (gain.toFloat() * panL).roundToInt().toUByte()
-                    val gainR = (gain.toFloat() * panR).roundToInt().toUByte()
-                    effect.masterLimiter.setOutputGain(gainL, gainR)
                 }
+        ) { (gain, pan) ->
+            val panL = if (pan < 50) 1.0f else ((100.0f - pan.toFloat()) / 50.0f)
+            val panR = if (pan > 50) 1.0f else (pan.toFloat() / 50.0f)
+            val gainL = (gain.toFloat() * panL).roundToInt().toUByte()
+            val gainR = (gain.toFloat() * panR).roundToInt().toUByte()
+            effect.masterLimiter.setOutputGain(gainL, gainR)
         }
-        scope.launch {
-            viperManager.masterLimiter.thresholdLimit.collect {
-                effect.masterLimiter.setThresholdLimit(it)
-            }
+
+        collect(viperManager.masterLimiter.thresholdLimit) {
+            effect.masterLimiter.setThresholdLimit(it.toUByte())
         }
-        scope.launch {
-            viperManager.playbackGainControl.enabled.collect {
-                effect.playbackGainControl.enabled = it
-            }
+        collect(viperManager.reverberation.enabled, effect.reverberation::setEnabled)
+        collect(viperManager.reverberation.roomSize) {
+            effect.reverberation.setRoomSize(it.toUByte())
         }
-        scope.launch {
-            viperManager.reverberation.enabled.collect {
-                effect.reverberation.setEnabled(it)
-            }
+        collect(viperManager.reverberation.soundField) {
+            effect.reverberation.setSoundField(it.toUByte())
         }
-        scope.launch {
-            viperManager.reverberation.roomSize.collect {
-                effect.reverberation.setRoomSize(it)
-            }
+        collect(viperManager.reverberation.damping) {
+            effect.reverberation.setDamping(it.toUByte())
         }
-        scope.launch {
-            viperManager.reverberation.soundField.collect {
-                effect.reverberation.setSoundField(it)
-            }
+        collect(viperManager.reverberation.wetSignal) {
+            effect.reverberation.setWetSignal(it.toUByte())
         }
-        scope.launch {
-            viperManager.reverberation.damping.collect {
-                effect.reverberation.setDamping(it)
-            }
+        collect(viperManager.reverberation.drySignal) {
+            effect.reverberation.setDrySignal(it.toUByte())
         }
-        scope.launch {
-            viperManager.reverberation.wetSignal.collect {
-                effect.reverberation.setWetSignal(it)
-            }
+        collect(viperManager.speakerOptimization.enabled, effect.speakerOptimization::setEnabled)
+        collect(viperManager.spectrumExtension.enabled, effect.spectrumExtension::setEnabled)
+        collect(viperManager.spectrumExtension.strength) {
+            effect.spectrumExtension.setStrength(it.toUByte())
         }
-        scope.launch {
-            viperManager.reverberation.drySignal.collect {
-                effect.reverberation.setDrySignal(it)
-            }
+        collect(viperManager.tubeSimulator6N1J.enabled, effect.tubeSimulator::setEnabled)
+        collect(viperManager.viperBass.enabled, effect.viperBass::setEnabled)
+        collect(viperManager.viperBass.mode) {
+            effect.viperBass.setMode(it.toUByte())
         }
-        scope.launch {
-            viperManager.speakerOptimization.enabled.collect {
-                effect.speakerOptimization.setEnabled(it)
-            }
+        collect(viperManager.viperBass.frequency) {
+            effect.viperBass.setFrequency(it.toUByte())
         }
-        scope.launch {
-            viperManager.spectrumExtension.enabled.collect {
-                effect.spectrumExtension.setEnabled(it)
-            }
+        collect(viperManager.viperBass.gain) {
+            effect.viperBass.setGain((it * 50).toUShort())
         }
-        scope.launch {
-            viperManager.spectrumExtension.strength.collect {
-                effect.spectrumExtension.setStrength(it)
-            }
+        collect(viperManager.viperClarity.enabled, effect.viperClarity::setEnabled)
+        collect(viperManager.viperClarity.mode) {
+            effect.viperClarity.setMode(it.toUByte())
         }
-        scope.launch {
-            viperManager.tubeSimulator6N1J.enabled.collect {
-                effect.tubeSimulator.setEnabled(it)
-            }
+        collect(viperManager.viperClarity.gain) {
+            effect.viperClarity.setGain((it * 50).toUShort())
         }
+    }
+
+    private fun <T> collect(
+        flow: Flow<T>,
+        setter: (T) -> Unit
+    ) {
         scope.launch {
-            viperManager.viperBass.enabled.collect {
-                effect.viperBass.setEnabled(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperBass.mode.collect {
-                effect.viperBass.setMode(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperBass.frequency.collect {
-                effect.viperBass.setFrequency(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperBass.gain.collect {
-                effect.viperBass.setGain(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperClarity.enabled.collect {
-                effect.viperClarity.setEnabled(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperClarity.mode.collect {
-                effect.viperClarity.setMode(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperClarity.gain.collect {
-                effect.viperClarity.setGain(it)
-            }
-        }
-        scope.launch {
-            viperManager.viperDdc.enabled.collect {
-//                effect.viperDdc.enabled = it
+            flow.collect {
+                setter(it)
             }
         }
     }

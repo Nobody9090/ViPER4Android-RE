@@ -2,6 +2,7 @@ package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aam.viper4android.Preset
 import com.aam.viper4android.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -9,38 +10,38 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
-private val outputGainValues = arrayOf<UByte>(
-    1u,
-    5u,
-    10u,
-    20u,
-    30u,
-    40u,
-    50u,
-    60u,
-    70u,
-    80u,
-    90u,
-    100u,
-    110u,
-    120u,
-    130u,
-    140u,
-    150u,
-    160u,
-    170u,
-    180u,
-    190u,
-    200u,
+private val outputGainValues = listOf(
+    1,
+    5,
+    10,
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90,
+    100,
+    110,
+    120,
+    130,
+    140,
+    150,
+    160,
+    170,
+    180,
+    190,
+    200,
 )
 
-private val thresholdLimitValues = arrayOf<UByte>(
-    30u,
-    50u,
-    70u,
-    80u,
-    90u,
-    100u,
+private val thresholdLimitValues = listOf(
+    30,
+    50,
+    70,
+    80,
+    90,
+    100,
 )
 
 @HiltViewModel
@@ -52,23 +53,15 @@ class MasterLimiterViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = outputGainValues.indexOf(100u)
+            initialValue = outputGainValues.indexOf(Preset.MasterLimiter.DEFAULT_OUTPUT_GAIN)
         )
     val outputPan = viperManager.masterLimiter.outputPan
-        .map {
-            it.toInt()
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 50
-        )
     val thresholdLimit = viperManager.masterLimiter.thresholdLimit
         .map(thresholdLimitValues::indexOf)
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = thresholdLimitValues.indexOf(100u)
+            initialValue = thresholdLimitValues.indexOf(Preset.MasterLimiter.DEFAULT_THRESHOLD_LIMIT)
         )
 
     fun setOutputGain(outputGain: Int) {
@@ -76,7 +69,7 @@ class MasterLimiterViewModel @Inject constructor(
     }
 
     fun setOutputPan(outputPan: Int) {
-        viperManager.masterLimiter.setOutputPan(outputPan.toUByte())
+        viperManager.masterLimiter.setOutputPan(outputPan)
     }
 
     fun setThresholdLimit(thresholdLimit: Int) {

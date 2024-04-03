@@ -30,7 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import java.util.Locale
 
 private fun getBandSpacing(size: Size): Float {
     return getBandSpacing(size.width)

@@ -7,8 +7,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.ui.component.Effect
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.vm.PlaybackGainControlViewModel
 
 @Composable

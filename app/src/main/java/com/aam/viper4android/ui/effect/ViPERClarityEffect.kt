@@ -8,10 +8,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.component.ValueSlider
+import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValuePicker
+import com.aam.viper4android.ui.component.ValueSlider
 import com.aam.viper4android.vm.ViPERClarityViewModel
 
 private val gainSummaryValues = arrayOf(

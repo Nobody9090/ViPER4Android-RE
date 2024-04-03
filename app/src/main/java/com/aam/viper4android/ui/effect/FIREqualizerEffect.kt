@@ -35,7 +35,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.eq.EqualizerBottomSheet
-import com.aam.viper4android.ui.component.eq.EqualizerBottomSheetPreview
 import com.aam.viper4android.ui.component.eq.EqualizerPreview
 import com.aam.viper4android.vm.FIREqualizerViewModel
 

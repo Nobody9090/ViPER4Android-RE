@@ -15,27 +15,15 @@ class ViPERClarityViewModel @Inject constructor(
 ) : ViewModel() {
     val enabled = viperManager.viperClarity.enabled
     val mode = viperManager.viperClarity.mode
-        .map { it.toInt() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = 0
-        )
-    val gain = viperManager.viperClarity.gain.map {
-        it.toInt() / 50
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
-        initialValue = 0
-    )
+    val gain = viperManager.viperClarity.gain
 
     fun setEnabled(enabled: Boolean) {
         viperManager.viperClarity.setEnabled(enabled)
     }
     fun setMode(mode: Int) {
-        viperManager.viperClarity.setMode(mode.toUByte())
+        viperManager.viperClarity.setMode(mode)
     }
     fun setGain(gain: Int) {
-        viperManager.viperClarity.setGain((gain * 50).toUShort())
+        viperManager.viperClarity.setGain(gain)
     }
 }
