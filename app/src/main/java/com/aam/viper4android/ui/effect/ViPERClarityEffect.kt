@@ -1,12 +1,9 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
@@ -41,27 +38,25 @@ fun ViPERClarityEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            ValuePicker(
-                title = stringResource(R.string.clarity_mode),
-                values = arrayOf(
-                    stringResource(R.string.natural),
-                    stringResource(R.string.ozone_plus),
-                    stringResource(R.string.xhifi),
-                ),
-                selectedIndex = mode,
-                onSelectedIndexChange = viewModel::setMode
-            )
-            ValueSlider(
-                title = stringResource(R.string.clarity_gain),
-                summary = gainSummaryValues[gain],
-                summaryUnit = "db",
-                value = gain,
-                onValueChange = viewModel::setGain,
-                valueRange = gainSummaryValues.indices
-            )
-        }
+        ValuePicker(
+            title = stringResource(R.string.clarity_mode),
+            values = arrayOf(
+                stringResource(R.string.natural),
+                stringResource(R.string.ozone_plus),
+                stringResource(R.string.xhifi),
+            ),
+            selectedIndex = mode,
+            onSelectedIndexChange = viewModel::setMode,
+            onSelectedIndexReset = viewModel::resetMode
+        )
+        ValueSlider(
+            title = stringResource(R.string.clarity_gain),
+            summary = gainSummaryValues[gain],
+            summaryUnit = "db",
+            value = gain,
+            onValueChange = viewModel::setGain,
+            onValueReset = viewModel::resetGain,
+            valueRange = gainSummaryValues.indices
+        )
     }
 }

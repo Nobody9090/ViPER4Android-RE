@@ -325,7 +325,7 @@ class ViPERManager @Inject constructor(
             }
         }
 
-        fun setDeviceType(deviceType: Int) {
+        fun setDeviceType(deviceType: Preset.DynamicSystem.DeviceType) {
             _deviceType.value = deviceType
             if (_currentPreset.value.dynamicSystem.deviceType != deviceType) {
                 _currentPreset.value.dynamicSystem.deviceType = deviceType
@@ -356,13 +356,13 @@ class ViPERManager @Inject constructor(
     }
 
     inner class FieldSurroundEffect {
-        private val _enabled = MutableStateFlow(Preset.FieldSurroundEffect.DEFAULT_ENABLED)
+        private val _enabled = MutableStateFlow(Preset.FieldSurround.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _surroundStrength = MutableStateFlow(Preset.FieldSurroundEffect.DEFAULT_SURROUND_STRENGTH)
+        private val _surroundStrength = MutableStateFlow(Preset.FieldSurround.DEFAULT_SURROUND_STRENGTH)
         val surroundStrength = _surroundStrength.asStateFlow()
 
-        private val _midImageStrength = MutableStateFlow(Preset.FieldSurroundEffect.DEFAULT_MID_IMAGE_STRENGTH)
+        private val _midImageStrength = MutableStateFlow(Preset.FieldSurround.DEFAULT_MID_IMAGE_STRENGTH)
         val midImageStrength = _midImageStrength.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -394,10 +394,21 @@ class ViPERManager @Inject constructor(
         private val _enabled = MutableStateFlow(Preset.FIREqualizer.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
+        private val _gains = MutableStateFlow(Preset.FIREqualizer.DEFAULT_GAINS)
+        val gains = _gains.asStateFlow()
+
         fun setEnabled(enabled: Boolean) {
             _enabled.value = enabled
             if (_currentPreset.value.firEqualizer.enabled != enabled) {
                 _currentPreset.value.firEqualizer.enabled = enabled
+                savePreset()
+            }
+        }
+
+        fun setGains(gains: List<Float>) {
+            _gains.value = gains
+            if (_currentPreset.value.firEqualizer.gains != gains) {
+                _currentPreset.value.firEqualizer.gains = gains
                 savePreset()
             }
         }
@@ -407,7 +418,7 @@ class ViPERManager @Inject constructor(
         private val _enabled = MutableStateFlow(Preset.HeadphoneSurroundPlus.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
-        private val _level = MutableStateFlow<Int>(0)
+        private val _level = MutableStateFlow(Preset.HeadphoneSurroundPlus.DEFAULT_LEVEL)
         val level = _level.asStateFlow()
 
         fun setEnabled(enabled: Boolean) {
@@ -678,10 +689,21 @@ class ViPERManager @Inject constructor(
         private val _enabled = MutableStateFlow(Preset.ViPERDDC.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 
+        private val _ddcPath = MutableStateFlow(Preset.ViPERDDC.DEFAULT_DDC_PATH)
+        val ddcPath = _ddcPath.asStateFlow()
+
         fun setEnabled(enabled: Boolean) {
             _enabled.value = enabled
             if (_currentPreset.value.viperDdc.enabled != enabled) {
                 _currentPreset.value.viperDdc.enabled = enabled
+                savePreset()
+            }
+        }
+
+        fun setDdcPath(ddcPath: String) {
+            _ddcPath.value = ddcPath
+            if (_currentPreset.value.viperDdc.ddcPath != ddcPath) {
+                _currentPreset.value.viperDdc.ddcPath = ddcPath
                 savePreset()
             }
         }

@@ -7,7 +7,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +28,7 @@ fun ValueSlider(
     summaryUnit: String = "",
     value: Int,
     onValueChange: (Int) -> Unit,
+    onValueReset: () -> Unit,
     valueRange: ClosedRange<Int> = 0..1,
     steps: Int = 0
 ) {
@@ -55,7 +55,7 @@ fun ValueSlider(
                     letterSpacing = 0.25.sp
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = onValueReset) {
                 Icon(
                     painter = painterResource(R.drawable.ic_restart),
                     contentDescription = "Reset to default"
@@ -72,23 +72,6 @@ fun ValueSlider(
     }
 }
 
-@Composable
-fun ValueSlider(
-    title: String,
-    summary: String? = null,
-    summaryUnit: String = "",
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    steps: Int = 0
-) {
-    Column {
-        Text(text = title)
-        Text(text = (summary ?: value.toString()) + summaryUnit)
-        Slider(value = value, onValueChange = onValueChange, valueRange = valueRange, steps = steps)
-    }
-}
-
 @Preview
 @Composable
 private fun ValueSliderPreview() {
@@ -99,6 +82,7 @@ private fun ValueSliderPreview() {
             summaryUnit = "%",
             value = 50,
             onValueChange = {},
+            onValueReset = {},
             valueRange = 0..100
         )
     }

@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -26,25 +25,26 @@ fun PlaybackGainControlEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValueSlider(
-                title = stringResource(R.string.strength),
-                value = 0,
-                onValueChange = { /*viewModel::setStrength*/ },
-                valueRange = 0..2
-            )
-            ValueSlider(
-                title = stringResource(R.string.maximum_gain),
-                value = 3,
-                onValueChange = { /*viewModel::setGain*/ },
-                valueRange = 0..10
-            )
-            ValueSlider(
-                title = stringResource(R.string.output_threshold),
-                value = 3,
-                onValueChange = { /*viewModel::setThreshold*/ },
-                valueRange = 0..5
-            )
-        }
+        ValueSlider(
+            title = stringResource(R.string.strength),
+            value = 0,
+            onValueChange = { /*viewModel::setStrength*/ },
+            onValueReset = {},
+            valueRange = 0..2
+        )
+        ValueSlider(
+            title = stringResource(R.string.maximum_gain),
+            value = 3,
+            onValueChange = { /*viewModel::setGain*/ },
+            onValueReset = {},
+            valueRange = 0..10
+        )
+        ValueSlider(
+            title = stringResource(R.string.output_threshold),
+            value = 3,
+            onValueChange = { /*viewModel::setThreshold*/ },
+            onValueReset = {},
+            valueRange = 0..5
+        )
     }
 }

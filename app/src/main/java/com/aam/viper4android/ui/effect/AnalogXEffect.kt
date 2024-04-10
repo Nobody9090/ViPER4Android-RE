@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -23,14 +22,13 @@ fun AnalogXEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValueSlider(
-                title = "Level",
-                summary = (level + 1).toString(),
-                value = level,
-                onValueChange = viewModel::setLevel,
-                valueRange = 0..2
-            )
-        }
+        ValueSlider(
+            title = "Level",
+            summary = (level + 1).toString(),
+            value = level,
+            onValueChange = viewModel::setLevel,
+            onValueReset = viewModel::resetLevel,
+            valueRange = 0..2
+        )
     }
 }

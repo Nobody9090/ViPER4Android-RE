@@ -1,6 +1,7 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
+import com.aam.viper4android.Preset
 import com.aam.viper4android.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,5 +19,9 @@ class DifferentialSurroundViewModel @Inject constructor(
 
     fun setDelay(delay: Int) {
         viperManager.differentialSurround.setDelay(delay)
+    }
+
+    fun resetDelay() {
+        viperManager.differentialSurround.setDelay(Preset.DifferentialSurround.DEFAULT_DELAY)
     }
 }

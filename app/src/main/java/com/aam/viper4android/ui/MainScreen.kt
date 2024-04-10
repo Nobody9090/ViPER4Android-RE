@@ -46,15 +46,12 @@ import com.aam.viper4android.ViPERService
 import com.aam.viper4android.ui.component.SwitchBar
 import com.aam.viper4android.ui.effect.AnalogXEffect
 import com.aam.viper4android.ui.effect.AuditorySystemProtectionEffect
-import com.aam.viper4android.ui.effect.ConvolverEffect
 import com.aam.viper4android.ui.effect.DifferentialSurroundEffect
 import com.aam.viper4android.ui.effect.DynamicSystemEffect
-import com.aam.viper4android.ui.effect.FETCompressorEffect
 import com.aam.viper4android.ui.effect.FIREqualizerEffect
 import com.aam.viper4android.ui.effect.FieldSurroundEffect
 import com.aam.viper4android.ui.effect.HeadphoneSurroundPlusEffect
 import com.aam.viper4android.ui.effect.MasterLimiterEffect
-import com.aam.viper4android.ui.effect.PlaybackGainControlEffect
 import com.aam.viper4android.ui.effect.ReverberationEffect
 import com.aam.viper4android.ui.effect.SpeakerOptimizationEffect
 import com.aam.viper4android.ui.effect.SpectrumExtensionEffect
@@ -170,15 +167,15 @@ fun MainScreen(
 
             AnimatedVisibility(visible = enabled) {
                 Column {
-                    Spacer(Modifier.height(29.dp))
+                    Spacer(Modifier.height(24.dp))
 
                     MasterLimiterEffect()
-                    PlaybackGainControlEffect()
-                    FETCompressorEffect()
+//                    PlaybackGainControlEffect()
+//                    FETCompressorEffect()
                     ViPERDDCEffect()
                     SpectrumExtensionEffect()
                     FIREqualizerEffect()
-                    ConvolverEffect()
+//                    ConvolverEffect()
                     FieldSurroundEffect()
                     DifferentialSurroundEffect()
                     HeadphoneSurroundPlusEffect()

@@ -19,5 +19,7 @@ fun ViPERDDCEffect(
         title = "ViPER-DDC",
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
-    )
+    ) {
+
+    }
 }

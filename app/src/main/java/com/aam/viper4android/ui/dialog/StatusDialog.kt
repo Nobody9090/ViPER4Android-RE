@@ -62,26 +62,26 @@ fun StatusDialog(
                                 )
                                 Text(text = stringResource(
                                     R.string.version,
-                                    statusViewModel.getVersionString(status.version)
+                                    statusViewModel.getVersionString(status.getVersion())
                                 ))
                                 Text(text = stringResource(
                                     R.string.architecture,
-                                    status.architecture
+                                    status.getArchitecture()
                                 ))
                                 Text(text = stringResource(
                                     R.string.enabled,
-                                    if (status.enabled)
+                                    if (status.getEnabled())
                                         stringResource(R.string.yes)
                                     else
                                         stringResource(R.string.no)
                                 ))
                                 Text(text = stringResource(
                                     R.string.frame_count,
-                                    status.frameCount
+                                    status.getFrameCount()
                                 ))
                                 Text(text = stringResource(
                                     R.string.disable_reason,
-                                    status.disableReason
+                                    status.getDisableReason()
                                 ))
                             }
                         }

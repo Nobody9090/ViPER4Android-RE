@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -23,15 +22,14 @@ fun DifferentialSurroundEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValueSlider(
-                title = "Delay",
-                summary = (delay + 1).toString(),
-                summaryUnit = "ms",
-                value = delay,
-                onValueChange = viewModel::setDelay,
-                valueRange = 0..19
-            )
-        }
+        ValueSlider(
+            title = "Delay",
+            summary = (delay + 1).toString(),
+            summaryUnit = "ms",
+            value = delay,
+            onValueChange = viewModel::setDelay,
+            onValueReset = viewModel::resetDelay,
+            valueRange = 0..19
+        )
     }
 }

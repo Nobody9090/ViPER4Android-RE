@@ -16,6 +16,8 @@ data class Session(
     val effect = ViPEREffect(sessionId)
     private val scope = CoroutineScope(Dispatchers.IO)
 
+    private var lastFirEqualizerGains = listOf<Float>()
+
     init {
         if (!effect.audioEffect.hasControl()) {
             release()
@@ -33,11 +35,41 @@ data class Session(
         collect(viperManager.differentialSurround.delay) {
             effect.differentialSurround.setDelay(it.toUShort())
         }
-        collect(viperManager.firEqualizer.enabled, effect.iirEqualizer::setEnabled)
-        collect(viperManager.headphoneSurroundPlus.enabled, effect.headphoneSurroundPlus::setEnabled)
-        collect(viperManager.headphoneSurroundPlus.level) {
-            effect.headphoneSurroundPlus.setLevel(it.toUByte())
+        collect(viperManager.dynamicSystem.enabled, effect.dynamicSystem::setEnabled)
+        collect(viperManager.dynamicSystem.deviceType) {
+            effect.dynamicSystem.setXCoefficients(it.xLow.toUShort(), it.xHigh.toUShort())
+            effect.dynamicSystem.setYCoefficients(it.yLow.toUShort(), it.yHigh.toUShort())
+            effect.dynamicSystem.setSideGain(it.gainX.toUByte(), it.gainY.toUByte())
         }
+        collect(viperManager.dynamicSystem.dynamicBassStrength) {
+            effect.dynamicSystem.setStrength((100 + 20 * it).toUShort())
+        }
+        collect(viperManager.firEqualizer.enabled, effect.iirEqualizer::setEnabled)
+        collect(viperManager.firEqualizer.gains) {
+            if (it.size != lastFirEqualizerGains.size) {
+                effect.iirEqualizer.setBands(it.size.toUByte())
+                it.forEachIndexed { index, gain ->
+                    effect.iirEqualizer.setBandLevel(
+                        index.toUByte(),
+                        (gain * 100).toInt().toShort()
+                    )
+                }
+            } else {
+                it.forEachIndexed { index, gain ->
+                    if (gain != lastFirEqualizerGains[index]) {
+                        effect.iirEqualizer.setBandLevel(
+                            index.toUByte(),
+                            (gain * 100).toInt().toShort()
+                        )
+                    }
+                }
+            }
+            lastFirEqualizerGains = it
+        }
+//        collect(viperManager.headphoneSurroundPlus.enabled, effect.headphoneSurroundPlus::setEnabled)
+//        collect(viperManager.headphoneSurroundPlus.level) {
+//            effect.headphoneSurroundPlus.setLevel(it.toUByte())
+//        }
 
         collect(
             viperManager.masterLimiter.outputGain
@@ -93,6 +125,10 @@ data class Session(
         }
         collect(viperManager.viperClarity.gain) {
             effect.viperClarity.setGain((it * 50).toUShort())
+        }
+        collect(viperManager.viperDdc.enabled, effect.viperDDC::setEnabled)
+        collect(viperManager.viperDdc.ddcPath) {
+
         }
     }
 

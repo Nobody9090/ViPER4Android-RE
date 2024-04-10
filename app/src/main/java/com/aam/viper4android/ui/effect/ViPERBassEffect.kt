@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
@@ -46,34 +45,35 @@ fun ViPERBassEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValuePicker(
-                title = stringResource(R.string.bass_mode),
-                values = arrayOf(
-                    stringResource(R.string.natural_bass),
-                    stringResource(R.string.pure_bass_plus),
-                    stringResource(R.string.subwoofer),
-                ),
-                selectedIndex = mode,
-                onSelectedIndexChange = viewModel::setMode
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            ValueSlider(
-                title = stringResource(R.string.bass_frequency),
-                summary = frequency.toString(),
-                summaryUnit = "Hz",
-                value = frequency,
-                onValueChange = viewModel::setFrequency,
-                valueRange = 15..150
-            )
-            ValueSlider(
-                title = stringResource(R.string.bass_gain),
-                summary = gainSummaryValues[gain - 1],
-                summaryUnit = "dB",
-                value = gain,
-                onValueChange = viewModel::setGain,
-                valueRange = 1..12
-            )
-        }
+        ValuePicker(
+            title = stringResource(R.string.bass_mode),
+            values = arrayOf(
+                stringResource(R.string.natural_bass),
+                stringResource(R.string.pure_bass_plus),
+                stringResource(R.string.subwoofer),
+            ),
+            selectedIndex = mode,
+            onSelectedIndexChange = viewModel::setMode,
+            onSelectedIndexReset = viewModel::resetMode
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        ValueSlider(
+            title = stringResource(R.string.bass_frequency),
+            summary = frequency.toString(),
+            summaryUnit = "Hz",
+            value = frequency,
+            onValueChange = viewModel::setFrequency,
+            onValueReset = viewModel::resetFrequency,
+            valueRange = 15..150
+        )
+        ValueSlider(
+            title = stringResource(R.string.bass_gain),
+            summary = gainSummaryValues[gain - 1],
+            summaryUnit = "dB",
+            value = gain,
+            onValueChange = viewModel::setGain,
+            onValueReset = viewModel::resetGain,
+            valueRange = 1..12
+        )
     }
 }

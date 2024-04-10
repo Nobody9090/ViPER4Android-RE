@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -55,46 +54,49 @@ fun ReverberationEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValueSlider(
-                title = "Room size",
-                summary = roomSizeSummaryValues[roomSize / 10],
-                summaryUnit = "m²",
-                value = roomSize,
-                onValueChange = viewModel::setRoomSize,
-                valueRange = 0..100,
-                steps = roomSizeSummaryValues.size - 2
-            )
-            ValueSlider(
-                title = "Sound field",
-                summary = soundFieldSummaryValues[soundField / 10],
-                summaryUnit = "m",
-                value = soundField,
-                onValueChange = viewModel::setSoundField,
-                valueRange = 0..100,
-                steps = soundFieldSummaryValues.size - 2
-            )
-            ValueSlider(
-                title = "Damping factor",
-                summaryUnit = "%",
-                value = damping,
-                onValueChange = viewModel::setDamping,
-                valueRange = 0..100
-            )
-            ValueSlider(
-                title = "Wet signal",
-                summaryUnit = "%",
-                value = wetSignal,
-                onValueChange = viewModel::setWetSignal,
-                valueRange = 0..100
-            )
-            ValueSlider(
-                title = "Dry signal",
-                summaryUnit = "%",
-                value = drySignal,
-                onValueChange = viewModel::setDrySignal,
-                valueRange = 0..100
-            )
-        }
+        ValueSlider(
+            title = "Room size",
+            summary = roomSizeSummaryValues[roomSize / 10],
+            summaryUnit = "m²",
+            value = roomSize,
+            onValueChange = viewModel::setRoomSize,
+            onValueReset = viewModel::resetRoomSize,
+            valueRange = 0..100,
+            steps = roomSizeSummaryValues.size - 2
+        )
+        ValueSlider(
+            title = "Sound field",
+            summary = soundFieldSummaryValues[soundField / 10],
+            summaryUnit = "m",
+            value = soundField,
+            onValueChange = viewModel::setSoundField,
+            onValueReset = viewModel::resetSoundField,
+            valueRange = 0..100,
+            steps = soundFieldSummaryValues.size - 2
+        )
+        ValueSlider(
+            title = "Damping factor",
+            summaryUnit = "%",
+            value = damping,
+            onValueChange = viewModel::setDamping,
+            onValueReset = viewModel::resetDamping,
+            valueRange = 0..100
+        )
+        ValueSlider(
+            title = "Wet signal",
+            summaryUnit = "%",
+            value = wetSignal,
+            onValueChange = viewModel::setWetSignal,
+            onValueReset = viewModel::resetWetSignal,
+            valueRange = 0..100
+        )
+        ValueSlider(
+            title = "Dry signal",
+            summaryUnit = "%",
+            value = drySignal,
+            onValueChange = viewModel::setDrySignal,
+            onValueReset = viewModel::resetDrySignal,
+            valueRange = 0..100
+        )
     }
 }

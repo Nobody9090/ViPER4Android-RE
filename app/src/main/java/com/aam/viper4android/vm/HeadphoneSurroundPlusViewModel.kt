@@ -1,6 +1,7 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
+import com.aam.viper4android.Preset
 import com.aam.viper4android.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,5 +19,9 @@ class HeadphoneSurroundPlusViewModel @Inject constructor(
 
     fun setLevel(level: Int) {
         viperManager.headphoneSurroundPlus.setLevel(level)
+    }
+
+    fun resetLevel() {
+        viperManager.headphoneSurroundPlus.setLevel(Preset.HeadphoneSurroundPlus.DEFAULT_LEVEL)
     }
 }

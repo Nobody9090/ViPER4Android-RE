@@ -7,7 +7,10 @@ import com.aam.viper4android.ktx.getIntParameter
 import com.aam.viper4android.ktx.getUByteParameter
 import com.aam.viper4android.ktx.getUIntParameter
 import com.aam.viper4android.ktx.getULongParameter
+import com.aam.viper4android.ktx.putFloatArray
 import com.aam.viper4android.ktx.putUByte
+import com.aam.viper4android.ktx.putUInt
+import com.aam.viper4android.ktx.putUShort
 import com.aam.viper4android.ktx.setBooleanParameter
 import com.aam.viper4android.ktx.setByteArrayParameter
 import com.aam.viper4android.ktx.setUByteArrayParameter
@@ -22,15 +25,15 @@ class ViPEREffect(sessionId: Int) {
 
     val status = Status()
     val masterLimiter = MasterLimiter()
-    val playbackGainControl = PlaybackGainControl()
-    val fetCompressor = FETCompressor()
+//    val playbackGainControl = PlaybackGainControl()
+//    val fetCompressor = FETCompressor()
     val viperDDC = ViPERDDC()
     val spectrumExtension = SpectrumExtension()
     val iirEqualizer = IIREqualizer()
-    val convolver = Convolver()
+//    val convolver = Convolver()
     val fieldSurround = FieldSurround()
     val differentialSurround = DifferentialSurround()
-    val headphoneSurroundPlus = HeadphoneSurroundPlus()
+//    val headphoneSurroundPlus = HeadphoneSurroundPlus()
     val reverberation = Reverberation()
     val dynamicSystem = DynamicSystem()
     val tubeSimulator = TubeSimulator()
@@ -43,23 +46,12 @@ class ViPEREffect(sessionId: Int) {
     fun reset() = audioEffect.setBooleanParameter(PARAM_SET_RESET, true)
 
     inner class Status {
-        val enabled: Boolean
-            get() = audioEffect.getBooleanParameter(PARAM_GET_ENABLED)
-
-        val frameCount: ULong
-            get() = audioEffect.getULongParameter(PARAM_GET_FRAME_COUNT)
-
-        val version: UInt
-            get() = audioEffect.getUIntParameter(PARAM_GET_VERSION)
-
-        val disableReason: DisableReason
-            get() = DisableReason.fromValue(audioEffect.getIntParameter(PARAM_GET_DISABLE_REASON))
-
-        val config: Configs
-            get() = Configs.fromBytes(audioEffect.getByteArrayParameter(PARAM_GET_CONFIG, 40))
-
-        val architecture: Architecture
-            get() = Architecture.fromValue(audioEffect.getUByteParameter(PARAM_GET_ARCHITECTURE))
+        fun getEnabled() = audioEffect.getBooleanParameter(PARAM_GET_ENABLED)
+        fun getFrameCount() = audioEffect.getULongParameter(PARAM_GET_FRAME_COUNT)
+        fun getVersion() = audioEffect.getUIntParameter(PARAM_GET_VERSION)
+        fun getDisableReason() = audioEffect.getIntParameter(PARAM_GET_DISABLE_REASON)
+        fun getConfig() = audioEffect.getByteArrayParameter(PARAM_GET_CONFIG, 40)
+        fun getArchitecture() = audioEffect.getUByteParameter(PARAM_GET_ARCHITECTURE)
     }
 
     inner class MasterLimiter {
@@ -69,27 +61,30 @@ class ViPEREffect(sessionId: Int) {
     }
 
     inner class PlaybackGainControl {
-        var enabled: Boolean
-            get() {
-                return false
-            } // TODO
-            set(value) {} // TODO
+        // TODO
     }
 
     inner class FETCompressor {
-        var enabled: Boolean
-            get() {
-                return false
-            } // TODO
-            set(value) {} // TODO
+        // TODO
     }
 
     inner class ViPERDDC {
-        var enabled: Boolean
-            get() {
-                return false
-            } // TODO
-            set(value) {} // TODO
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_VIPER_DDC_ENABLE, enabled)
+        fun setCoefficients(
+            coefficients44100: FloatArray,
+            coefficients48000: FloatArray,
+        ) {
+            if (coefficients44100.size != coefficients48000.size) {
+                throw IllegalArgumentException("Coefficients must be the same size")
+            }
+
+            val array = ByteBuffer.allocate(4 + coefficients44100.size * 4 + coefficients48000.size * 4).order(ByteOrder.nativeOrder())
+                .putUInt(coefficients44100.size.toUInt())
+                .putFloatArray(coefficients44100)
+                .putFloatArray(coefficients48000)
+                .array()
+            audioEffect.setByteArrayParameter(PARAM_SET_VIPER_DDC_COEFFICIENTS, array)
+        }
     }
 
     inner class SpectrumExtension {
@@ -99,6 +94,9 @@ class ViPEREffect(sessionId: Int) {
 
     inner class IIREqualizer {
         fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_IIR_EQUALIZER_ENABLE, enabled)
+        fun setBands(bands: UByte) {
+            // TODO
+        }
         fun setBandLevel(band: UByte, level: Short) {
             val array = ByteBuffer.allocate(3).order(ByteOrder.nativeOrder())
                 .putUByte(band)
@@ -142,17 +140,29 @@ class ViPEREffect(sessionId: Int) {
     }
 
     inner class DynamicSystem {
-        var enabled: Boolean
-            get() {
-                return false
-            } // TODO
-            set(value) {} // TODO
-
-        var strength: Int
-            get() {
-                return 0
-            } // TODO
-            set(value) {} // TODO
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_DYNAMIC_SYSTEM_ENABLE, enabled)
+        fun setXCoefficients(low: UShort, high: UShort) {
+            val array = ByteBuffer.allocate(4).order(ByteOrder.nativeOrder())
+                .putUShort(low)
+                .putUShort(high)
+                .array()
+            audioEffect.setByteArrayParameter(PARAM_SET_DYNAMIC_SYSTEM_X_COEFFICIENTS, array)
+        }
+        fun setYCoefficients(low: UShort, high: UShort) {
+            val array = ByteBuffer.allocate(4).order(ByteOrder.nativeOrder())
+                .putUShort(low)
+                .putUShort(high)
+                .array()
+            audioEffect.setByteArrayParameter(PARAM_SET_DYNAMIC_SYSTEM_Y_COEFFICIENTS, array)
+        }
+        fun setSideGain(gainX: UByte, gainY: UByte) {
+            val array = ByteBuffer.allocate(2).order(ByteOrder.nativeOrder())
+                .putUByte(gainX)
+                .putUByte(gainY)
+                .array()
+            audioEffect.setByteArrayParameter(PARAM_SET_DYNAMIC_SYSTEM_SIDE_GAIN, array)
+        }
+        fun setStrength(strength: UShort) = audioEffect.setUShortParameter(PARAM_SET_DYNAMIC_SYSTEM_STRENGTH, strength)
     }
 
     inner class TubeSimulator {
@@ -207,8 +217,8 @@ class ViPEREffect(sessionId: Int) {
 
         // typedef enum {
         //    PARAM_SET_RESET = 0,
-        //    PARAM_SET_DDC_ENABLE,
-        //    PARAM_SET_DDC_COEFFICIENTS,
+        //    PARAM_SET_VIPER_DDC_ENABLE,
+        //    PARAM_SET_VIPER_DDC_COEFFICIENTS,
         //    PARAM_SET_VIPER_BASS_ENABLE,
         //    PARAM_SET_VIPER_BASS_MODE,
         //    PARAM_SET_VIPER_BASS_FREQUENCY,
@@ -241,10 +251,15 @@ class ViPEREffect(sessionId: Int) {
         //    PARAM_SET_SPECTRUM_EXTENSION_STRENGTH,
         //    PARAM_SET_HEADPHONE_SURROUND_ENABLE,
         //    PARAM_SET_HEADPHONE_SURROUND_LEVEL,
+        //    PARAM_SET_DYNAMIC_SYSTEM_ENABLE,
+        //    PARAM_SET_DYNAMIC_SYSTEM_X_COEFFICIENTS,
+        //    PARAM_SET_DYNAMIC_SYSTEM_Y_COEFFICIENTS,
+        //    PARAM_SET_DYNAMIC_SYSTEM_SIDE_GAIN,
+        //    PARAM_SET_DYNAMIC_SYSTEM_STRENGTH,
         //} param_set_t;
         private const val PARAM_SET_RESET = 0u
-        private const val PARAM_SET_DDC_ENABLE = 1u
-        private const val PARAM_SET_DDC_COEFFICIENTS = 2u
+        private const val PARAM_SET_VIPER_DDC_ENABLE = 1u
+        private const val PARAM_SET_VIPER_DDC_COEFFICIENTS = 2u
         private const val PARAM_SET_VIPER_BASS_ENABLE = 3u
         private const val PARAM_SET_VIPER_BASS_MODE = 4u
         private const val PARAM_SET_VIPER_BASS_FREQUENCY = 5u
@@ -277,5 +292,10 @@ class ViPEREffect(sessionId: Int) {
         private const val PARAM_SET_SPECTRUM_EXTENSION_STRENGTH = 32u
         private const val PARAM_SET_HEADPHONE_SURROUND_ENABLE = 33u
         private const val PARAM_SET_HEADPHONE_SURROUND_LEVEL = 34u
+        private const val PARAM_SET_DYNAMIC_SYSTEM_ENABLE = 35u
+        private const val PARAM_SET_DYNAMIC_SYSTEM_X_COEFFICIENTS = 36u
+        private const val PARAM_SET_DYNAMIC_SYSTEM_Y_COEFFICIENTS = 37u
+        private const val PARAM_SET_DYNAMIC_SYSTEM_SIDE_GAIN = 38u
+        private const val PARAM_SET_DYNAMIC_SYSTEM_STRENGTH = 39u
     }
 }

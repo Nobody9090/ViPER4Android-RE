@@ -1,6 +1,7 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
+import com.aam.viper4android.Preset
 import com.aam.viper4android.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -17,5 +18,9 @@ class AnalogXViewModel @Inject constructor(
     }
     fun setLevel(level: Int) {
         viperManager.analogX.setLevel(level)
+    }
+
+    fun resetLevel() {
+        viperManager.analogX.setLevel(Preset.AnalogX.DEFAULT_LEVEL)
     }
 }

@@ -68,11 +68,23 @@ class MasterLimiterViewModel @Inject constructor(
         viperManager.masterLimiter.setOutputGain(outputGainValues[outputGain])
     }
 
+    fun resetOutputGain() {
+        viperManager.masterLimiter.setOutputGain(Preset.MasterLimiter.DEFAULT_OUTPUT_GAIN)
+    }
+
     fun setOutputPan(outputPan: Int) {
         viperManager.masterLimiter.setOutputPan(outputPan)
     }
 
+    fun resetOutputPan() {
+        viperManager.masterLimiter.setOutputPan(Preset.MasterLimiter.DEFAULT_OUTPUT_PAN)
+    }
+
     fun setThresholdLimit(thresholdLimit: Int) {
         viperManager.masterLimiter.setThresholdLimit(thresholdLimitValues[thresholdLimit])
+    }
+
+    fun resetThresholdLimit() {
+        viperManager.masterLimiter.setThresholdLimit(Preset.MasterLimiter.DEFAULT_THRESHOLD_LIMIT)
     }
 }

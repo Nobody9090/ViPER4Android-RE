@@ -1,6 +1,7 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
+import com.aam.viper4android.Preset
 import com.aam.viper4android.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,5 +19,9 @@ class SpectrumExtensionViewModel @Inject constructor(
 
     fun setStrength(strength: Int) {
         viperManager.spectrumExtension.setStrength(strength)
+    }
+
+    fun resetStrength() {
+        viperManager.spectrumExtension.setStrength(Preset.SpectrumExtension.DEFAULT_STRENGTH)
     }
 }

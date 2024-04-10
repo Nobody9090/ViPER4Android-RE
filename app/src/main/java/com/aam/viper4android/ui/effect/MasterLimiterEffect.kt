@@ -1,11 +1,8 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
@@ -58,32 +55,31 @@ fun MasterLimiterEffect(
         icon = painterResource(R.drawable.ic_master_limiter),
         title = "Master limiter",
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            ValueSlider(
-                title = "Output gain",
-                summary = outputGainSummaryValues[outputGain],
-                summaryUnit = "dB",
-                value = outputGain,
-                onValueChange = viewModel::setOutputGain,
-                valueRange = outputGainSummaryValues.indices
-            )
-            ValueSlider(
-                title = "Output pan",
-                summary = "${100 - outputPan}:${outputPan}",
-                value = outputPan,
-                onValueChange = viewModel::setOutputPan,
-                valueRange = 0..100
-            )
-            ValueSlider(
-                title = "Threshold limit",
-                value = thresholdLimit,
-                summary = thresholdLimitSummaryValues[thresholdLimit],
-                summaryUnit = "dB",
-                onValueChange = viewModel::setThresholdLimit,
-                valueRange = thresholdLimitSummaryValues.indices
-            )
-        }
+        ValueSlider(
+            title = "Output gain",
+            summary = outputGainSummaryValues[outputGain],
+            summaryUnit = "dB",
+            value = outputGain,
+            onValueChange = viewModel::setOutputGain,
+            onValueReset = viewModel::resetOutputGain,
+            valueRange = outputGainSummaryValues.indices
+        )
+        ValueSlider(
+            title = "Output pan",
+            summary = "${100 - outputPan}:${outputPan}",
+            value = outputPan,
+            onValueChange = viewModel::setOutputPan,
+            onValueReset = viewModel::resetOutputPan,
+            valueRange = 0..100
+        )
+        ValueSlider(
+            title = "Threshold limit",
+            value = thresholdLimit,
+            summary = thresholdLimitSummaryValues[thresholdLimit],
+            summaryUnit = "dB",
+            onValueChange = viewModel::setThresholdLimit,
+            onValueReset = viewModel::resetThresholdLimit,
+            valueRange = thresholdLimitSummaryValues.indices
+        )
     }
 }

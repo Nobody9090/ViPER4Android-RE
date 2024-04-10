@@ -14,6 +14,8 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -24,17 +26,21 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.aam.viper4android.R
 
 @Composable
 fun ValuePicker(
     title: String,
     values: Array<String>,
     selectedIndex: Int,
-    onSelectedIndexChange: (Int) -> Unit
+    onSelectedIndexChange: (Int) -> Unit,
+    onSelectedIndexReset: () -> Unit
 ) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     Column(
@@ -63,6 +69,7 @@ fun ValuePicker(
             values,
             selectedIndex,
             onSelectedIndexChange,
+            onSelectedIndexReset,
             onDismissRequest = { showDialog = false })
     }
 }
@@ -73,6 +80,7 @@ private fun ValuePickerDialog(
     values: Array<String>,
     selectedIndex: Int,
     onSelectedIndexChange: (Int) -> Unit,
+    onSelectedIndexReset: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     Dialog(
@@ -85,11 +93,23 @@ private fun ValuePickerDialog(
                     shape = RoundedCornerShape(28.dp)
                 )
         ) {
-            Text(
-                text = title,
+            Row(
                 modifier = Modifier.padding(24.dp),
-                style = MaterialTheme.typography.headlineSmall
-            )
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                IconButton(onClick = onSelectedIndexReset) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_restart),
+                        contentDescription = "Reset to default"
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier
@@ -133,4 +153,29 @@ private fun ValuePickerDialog(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun ValuePickerPreview() {
+    ValuePicker(
+        title = "Device type",
+        values = arrayOf("Headphones", "Speaker", "Car", "Custom"),
+        selectedIndex = 0,
+        onSelectedIndexChange = {},
+        onSelectedIndexReset = {}
+    )
+}
+
+@Preview
+@Composable
+private fun ValuePickerDialogPreview() {
+    ValuePickerDialog(
+        title = "Device type",
+        values = arrayOf("Headphones", "Speaker", "Car", "Custom"),
+        selectedIndex = 0,
+        onSelectedIndexChange = {},
+        onSelectedIndexReset = {},
+        onDismissRequest = {}
+    )
 }

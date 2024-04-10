@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -23,14 +22,13 @@ fun SpectrumExtensionEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValueSlider(
-                title = "Strength",
-                summaryUnit = "%",
-                value = strength,
-                onValueChange = viewModel::setStrength,
-                valueRange = 0..100
-            )
-        }
+        ValueSlider(
+            title = "Strength",
+            summaryUnit = "%",
+            value = strength,
+            onValueChange = viewModel::setStrength,
+            onValueReset = viewModel::resetStrength,
+            valueRange = 0..100
+        )
     }
 }

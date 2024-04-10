@@ -9,7 +9,7 @@ data class Preset(
     val differentialSurround: DifferentialSurround = DifferentialSurround(),
     val dynamicSystem: DynamicSystem = DynamicSystem(),
     val fetCompressor: FETCompressor = FETCompressor(),
-    val fieldSurround: FieldSurroundEffect = FieldSurroundEffect(),
+    val fieldSurround: FieldSurround = FieldSurround(),
     val firEqualizer: FIREqualizer = FIREqualizer(),
     val headphoneSurroundPlus: HeadphoneSurroundPlus = HeadphoneSurroundPlus(),
     val masterLimiter: MasterLimiter = MasterLimiter(),
@@ -66,12 +66,42 @@ data class Preset(
 
     data class DynamicSystem(
         var enabled: Boolean = DEFAULT_ENABLED,
-        var deviceType: Int = DEFAULT_DEVICE_TYPE,
+        var deviceType: DeviceType = DEFAULT_DEVICE_TYPE,
         var dynamicBassStrength: Int = DEFAULT_DYNAMIC_BASS_STRENGTH
     ) {
+        enum class DeviceType(
+            val xLow: Int, val xHigh: Int,
+            val yLow: Int, val yHigh: Int,
+            val gainX: Int, val gainY: Int,
+        ) {
+            EXTREME_HEADPHONE_V2(140, 6200, 40, 60, 10, 80),
+            HIGH_END_HEADPHONE_V2(180, 5800, 55, 80, 10, 70),
+            COMMON_HEADPHONE_V2(300, 5600, 60, 105, 10, 50),
+            LOW_END_HEADPHONE_V2(600, 5400, 60, 105, 10, 20),
+            COMMON_EARPHONE_V2(100, 5600, 40, 80, 50, 50),
+            EXTREME_HEADPHONE_V1(1200, 6200, 40, 80, 0, 20),
+            HIGH_END_HEADPHONE_V1(1000, 6200, 40, 80, 0, 10),
+            COMMON_HEADPHONE_V1(800, 6200, 40, 80, 10, 0),
+            COMMON_EARPHONE_V1(400, 6200, 40, 80, 10, 0),
+            APPLE_EARPHONE(1200, 6200, 50, 90, 15, 10),
+            MONSTER_EARPHONE(1000, 6200, 50, 90, 30, 10),
+            MOTOROLA_EARPHONE(1100, 6200, 60, 100, 20, 0),
+            PHILIPS_EARPHONE(1200, 6200, 50, 100, 10, 50),
+            SHP2000(1200, 6200, 60, 100, 0, 30),
+            SHP9000(1200, 6200, 40, 80, 0, 30),
+            UNKNOWN_TYPE_I(1000, 6200, 60, 100, 0, 0),
+            UNKNOWN_TYPE_II(1000, 6200, 60, 120, 0, 0),
+            UNKNOWN_TYPE_III(1000, 6200, 80, 140, 0, 0),
+            UNKNOWN_TYPE_IV(800, 6200, 80, 140, 0, 0),
+            UNKNOWN_TYPE_V(0, 0, 0, 0, 0, 0),
+            PITT_VAN_DE_WITT_FLAVOR_1(180, 5400, 40, 60, 50, 0),
+            PITT_VAN_DE_WITT_FLAVOR_2(1200, 6000, 40, 60, 0, 80),
+            PITT_VAN_DE_WITT_FLAVOR_3(140, 5400, 40, 60, 0, 0),
+        }
+
         companion object {
             const val DEFAULT_ENABLED: Boolean = false
-            const val DEFAULT_DEVICE_TYPE: Int = 0
+            val DEFAULT_DEVICE_TYPE: DeviceType = DeviceType.COMMON_EARPHONE_V2
             const val DEFAULT_DYNAMIC_BASS_STRENGTH: Int = 0
         }
     }
@@ -116,7 +146,7 @@ data class Preset(
         }
     }
 
-    data class FieldSurroundEffect(
+    data class FieldSurround(
         var enabled: Boolean = DEFAULT_ENABLED,
         var surroundStrength: Int = DEFAULT_SURROUND_STRENGTH,
         var midImageStrength: Int = DEFAULT_MID_IMAGE_STRENGTH,
@@ -130,11 +160,11 @@ data class Preset(
 
     data class FIREqualizer(
         var enabled: Boolean = DEFAULT_ENABLED,
-        var gains: List<Int> = DEFAULT_GAINS
+        var gains: List<Float> = DEFAULT_GAINS
     ) {
         companion object {
             const val DEFAULT_ENABLED: Boolean = false
-            val DEFAULT_GAINS: List<Int> = List(10) { 0 }
+            val DEFAULT_GAINS: List<Float> = List(10) { 0f }
         }
     }
 

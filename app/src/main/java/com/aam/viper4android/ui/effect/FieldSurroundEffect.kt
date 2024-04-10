@@ -1,6 +1,5 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
@@ -24,21 +23,21 @@ fun FieldSurroundEffect(
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
-        Column {
-            ValueSlider(
-                title = "Surround strength",
-                summary = (surroundStrength + 1).toString(),
-                value = surroundStrength,
-                onValueChange = viewModel::setSurroundStrength,
-                valueRange = 0..8
-            )
-            ValueSlider(
-                title = "Mid image strength",
-                summary = (midImageStrength + 1).toString(),
-                value = midImageStrength,
-                onValueChange = viewModel::setMidImageStrength,
-                valueRange = 0..10
-            )
-        }
+        ValueSlider(
+            title = "Surround strength",
+            summary = (surroundStrength + 1).toString(),
+            value = surroundStrength,
+            onValueChange = viewModel::setSurroundStrength,
+            onValueReset = viewModel::resetSurroundStrength,
+            valueRange = 0..8
+        )
+        ValueSlider(
+            title = "Mid image strength",
+            summary = (midImageStrength + 1).toString(),
+            value = midImageStrength,
+            onValueChange = viewModel::setMidImageStrength,
+            onValueReset = viewModel::resetMidImageStrength,
+            valueRange = 0..10
+        )
     }
 }

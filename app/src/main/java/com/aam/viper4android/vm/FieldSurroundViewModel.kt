@@ -1,46 +1,36 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.aam.viper4android.Preset
 import com.aam.viper4android.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FieldSurroundViewModel @Inject constructor(
     private val viperManager: ViPERManager,
 ) : ViewModel() {
-    private val _enabled = MutableStateFlow(false)
-    val enabled = _enabled.asStateFlow()
-
-    private val _surroundStrength = MutableStateFlow(0)
-    val surroundStrength = _surroundStrength.asStateFlow()
-
-    private val _midImageStrength = MutableStateFlow(5)
-    val midImageStrength = _midImageStrength.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            viperManager.currentPreset.collect { preset ->
-                _enabled.value = preset.fieldSurround.enabled
-                _surroundStrength.value = preset.fieldSurround.surroundStrength
-                _midImageStrength.value = preset.fieldSurround.midImageStrength
-            }
-        }
-    }
+    val enabled = viperManager.fieldSurroundEffect.enabled
+    val surroundStrength = viperManager.fieldSurroundEffect.surroundStrength
+    val midImageStrength = viperManager.fieldSurroundEffect.midImageStrength
 
     fun setEnabled(enabled: Boolean) {
-        _enabled.value = enabled
+        viperManager.fieldSurroundEffect.setEnabled(enabled)
     }
 
     fun setSurroundStrength(surroundStrength: Int) {
-        _surroundStrength.value = surroundStrength
+        viperManager.fieldSurroundEffect.setSurroundStrength(surroundStrength)
+    }
+
+    fun resetSurroundStrength() {
+        viperManager.fieldSurroundEffect.setSurroundStrength(Preset.FieldSurround.DEFAULT_SURROUND_STRENGTH)
     }
 
     fun setMidImageStrength(midImageStrength: Int) {
-        _midImageStrength.value = midImageStrength
+        viperManager.fieldSurroundEffect.setMidImageStrength(midImageStrength)
+    }
+
+    fun resetMidImageStrength() {
+        viperManager.fieldSurroundEffect.setMidImageStrength(Preset.FieldSurround.DEFAULT_MID_IMAGE_STRENGTH)
     }
 }

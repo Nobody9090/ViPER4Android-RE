@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,7 +32,7 @@ import com.aam.viper4android.R
 fun Effect(
     icon: Painter,
     title: String,
-    content: @Composable () -> Unit
+    content: (@Composable ColumnScope.() -> Unit)?,
 ) {
     Effect(
         icon = icon,
@@ -64,7 +65,7 @@ fun Effect(
     title: String,
     checked: Boolean?,
     onCheckedChange: ((Boolean) -> Unit)?,
-    content: (@Composable () -> Unit)?,
+    content: (@Composable ColumnScope.() -> Unit)?,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Column {
@@ -100,7 +101,9 @@ fun Effect(
         }
         if (content != null) {
             AnimatedVisibility(visible = expanded) {
-                content()
+                Column {
+                    content()
+                }
             }
         }
     }
