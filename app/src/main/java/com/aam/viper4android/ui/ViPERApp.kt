@@ -6,6 +6,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aam.viper4android.ui.screen.MainScreen
+import com.aam.viper4android.ui.screen.OnboardingScreen
+import com.aam.viper4android.ui.screen.SettingsScreen
+import com.aam.viper4android.ui.screen.ViPERNotAvailableScreen
 import com.aam.viper4android.vm.MainViewModel
 
 sealed class Screen(val route: String) {

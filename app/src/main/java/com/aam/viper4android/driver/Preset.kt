@@ -1,4 +1,4 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
 data class Preset(
     var name: String = DEFAULT_NAME,

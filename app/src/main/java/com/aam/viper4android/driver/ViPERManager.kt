@@ -1,12 +1,11 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
 import android.content.Context
+import android.media.MediaRouter
 import android.media.audiofx.AudioEffect
 import android.util.Log
-import androidx.mediarouter.media.MediaControlIntent
-import androidx.mediarouter.media.MediaRouteSelector
-import androidx.mediarouter.media.MediaRouter
 import com.aam.viper4android.ktx.getBootCount
+import com.aam.viper4android.ktx.getSelectedLiveAudioRoute
 import com.aam.viper4android.ktx.toPreset
 import com.aam.viper4android.persistence.PresetsDao
 import com.aam.viper4android.persistence.SessionDao
@@ -32,9 +31,9 @@ class ViPERManager @Inject constructor(
 ) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val bootCount = getBootCount(context.contentResolver)
-    private val mediaRouter = MediaRouter.getInstance(context)
+    private val mediaRouter = context.getSystemService(MediaRouter::class.java)
 
-    private var _currentRoute = MutableStateFlow(ViPERRoute.fromRouteInfo(mediaRouter.selectedRoute))
+    private var _currentRoute = MutableStateFlow(ViPERRoute.fromRouteInfo(mediaRouter.getSelectedLiveAudioRoute()))
     val currentRoute = _currentRoute.asStateFlow()
 
     private var _currentPreset = MutableStateFlow(Preset())
@@ -81,27 +80,19 @@ class ViPERManager @Inject constructor(
     private fun observeMediaRouter() {
         scope.launch(Dispatchers.Main) {
             callbackFlow {
-                val callback = object : MediaRouter.Callback() {
+                val callback = object : MediaRouter.SimpleCallback() {
                     override fun onRouteSelected(
                         router: MediaRouter,
-                        route: MediaRouter.RouteInfo,
-                        reason: Int
+                        type: Int,
+                        info: MediaRouter.RouteInfo
                     ) {
-                        trySend(route)
-                    }
-
-                    override fun onRouteRemoved(router: MediaRouter, route: MediaRouter.RouteInfo) {
-                        router.unselect(MediaRouter.UNSELECT_REASON_UNKNOWN)
+                        trySend(info)
                     }
                 }
-
-                val selector = MediaRouteSelector.Builder()
-                    .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                    .build()
-                mediaRouter.addCallback(selector, callback, 0)
+                mediaRouter.addCallback(MediaRouter.ROUTE_TYPE_LIVE_AUDIO, callback)
 
                 // Update the current route immediately
-                trySend(mediaRouter.selectedRoute)
+                trySend(mediaRouter.getSelectedLiveAudioRoute())
 
                 awaitClose {
                     mediaRouter.removeCallback(callback)
@@ -166,7 +157,7 @@ class ViPERManager @Inject constructor(
     suspend fun addSession(packageName: String, sessionId: Int) {
         waitForReady()
         sessionDao.insert(PersistedSession(packageName, sessionId, bootCount))
-        if (viperSettings.isLegacyMode) return
+        if (viperSettings.legacyMode.value) return
         if (sessions.find { it.packageName == packageName && it.sessionId == sessionId } != null) return
         addSessionSafe(packageName, sessionId)
         notifySessions()

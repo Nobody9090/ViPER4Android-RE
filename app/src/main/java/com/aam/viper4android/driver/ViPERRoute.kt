@@ -1,19 +1,19 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
-import androidx.mediarouter.media.MediaRouter
+import android.media.MediaRouter
 
 interface ViPERRoute {
     fun getId(): String
-    fun getName(): String
+    fun getName(): CharSequence
 
     companion object {
         fun fromRouteInfo(route: MediaRouter.RouteInfo): ViPERRoute {
             return object : ViPERRoute {
                 override fun getId(): String {
-                    return route.id
+                    return route.name.toString()
                 }
 
-                override fun getName(): String {
+                override fun getName(): CharSequence {
                     return route.name
                 }
             }

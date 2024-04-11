@@ -1,4 +1,4 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -13,6 +13,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import com.aam.viper4android.R
+import com.aam.viper4android.ViPERApplication
 import com.aam.viper4android.persistence.ViPERSettings
 import com.aam.viper4android.util.AndroidUtils
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -72,6 +74,18 @@ class ViPERService : LifecycleService() {
         lifecycleScope.launch {
             intentsFlow.collect(::handleIntent)
         }
+
+        lifecycleScope.launch {
+            viperManager.currentRoute.collect {
+                updateNotification()
+            }
+        }
+
+        lifecycleScope.launch {
+            viperSettings.legacyMode.collect {
+                updateNotification()
+            }
+        }
     }
 
     private suspend fun handleIntent(intent: Intent) {
@@ -114,6 +128,7 @@ class ViPERService : LifecycleService() {
 
     @SuppressLint("MissingPermission")
     private fun updateNotification() {
+        if (!foreground) return
         NotificationManagerCompat.from(this)
             .notify(SERVICE_NOTIFICATION_ID, getNotification())
     }
@@ -128,7 +143,7 @@ class ViPERService : LifecycleService() {
             viperManager.currentRoute.value.getName()
         )
 
-        val text = if (viperSettings.isLegacyMode)
+        val text = if (viperSettings.legacyMode.value)
             getString(R.string.legacy_mode)
         else
             getSessionAppLabelsString()

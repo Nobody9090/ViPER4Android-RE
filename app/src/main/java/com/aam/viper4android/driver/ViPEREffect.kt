@@ -1,4 +1,4 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
 import com.aam.viper4android.ktx.AudioEffectKtx
 import com.aam.viper4android.ktx.getBooleanParameter
@@ -56,8 +56,10 @@ class ViPEREffect(sessionId: Int) {
 
     inner class MasterLimiter {
         @OptIn(ExperimentalUnsignedTypes::class)
-        fun setOutputGain(gainL: UByte, gainR: UByte) = audioEffect.setUByteArrayParameter(PARAM_SET_OUTPUT_GAIN, ubyteArrayOf(gainL, gainR))
-        fun setThresholdLimit(thresholdLimit: UByte) = audioEffect.setUByteParameter(PARAM_SET_THRESHOLD_LIMIT, thresholdLimit)
+        fun setOutputGain(gainL: UByte, gainR: UByte) = audioEffect.setUByteArrayParameter(
+            PARAM_SET_OUTPUT_GAIN, ubyteArrayOf(gainL, gainR))
+        fun setThresholdLimit(thresholdLimit: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_THRESHOLD_LIMIT, thresholdLimit)
     }
 
     inner class PlaybackGainControl {
@@ -69,14 +71,13 @@ class ViPEREffect(sessionId: Int) {
     }
 
     inner class ViPERDDC {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_VIPER_DDC_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_VIPER_DDC_ENABLE, enabled)
         fun setCoefficients(
             coefficients44100: FloatArray,
             coefficients48000: FloatArray,
         ) {
-            if (coefficients44100.size != coefficients48000.size) {
-                throw IllegalArgumentException("Coefficients must be the same size")
-            }
+            require(coefficients44100.size == coefficients48000.size) { "Coefficients must be the same size" }
 
             val array = ByteBuffer.allocate(4 + coefficients44100.size * 4 + coefficients48000.size * 4).order(ByteOrder.nativeOrder())
                 .putUInt(coefficients44100.size.toUInt())
@@ -88,12 +89,15 @@ class ViPEREffect(sessionId: Int) {
     }
 
     inner class SpectrumExtension {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_SPECTRUM_EXTENSION_ENABLE, enabled)
-        fun setStrength(strength: UByte) = audioEffect.setUByteParameter(PARAM_SET_SPECTRUM_EXTENSION_STRENGTH, strength)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_SPECTRUM_EXTENSION_ENABLE, enabled)
+        fun setStrength(strength: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_SPECTRUM_EXTENSION_STRENGTH, strength)
     }
 
     inner class IIREqualizer {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_IIR_EQUALIZER_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_IIR_EQUALIZER_ENABLE, enabled)
         fun setBands(bands: UByte) {
             // TODO
         }
@@ -107,40 +111,49 @@ class ViPEREffect(sessionId: Int) {
     }
 
     inner class Convolver {
-        var enabled: Boolean
-            get() {
-                return false
-            } // TODO
-            set(value) {} // TODO
+        // TODO
     }
 
     inner class FieldSurround {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_FIELD_SURROUND_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_FIELD_SURROUND_ENABLE, enabled)
         fun setDepth(depth: UShort) = audioEffect.setUShortParameter(PARAM_SET_FIELD_SURROUND_DEPTH, depth)
-        fun setMidImage(midImage: UByte) = audioEffect.setUByteParameter(PARAM_SET_FIELD_SURROUND_MID_IMAGE, midImage)
+        fun setMidImage(midImage: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_FIELD_SURROUND_MID_IMAGE, midImage)
     }
 
     inner class DifferentialSurround {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_DIFFERENTIAL_SURROUND_ENABLE, enabled)
-        fun setDelay(delay: UShort) = audioEffect.setUShortParameter(PARAM_SET_DIFFERENTIAL_SURROUND_DELAY, delay)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_DIFFERENTIAL_SURROUND_ENABLE, enabled)
+        fun setDelay(delay: UShort) = audioEffect.setUShortParameter(
+            PARAM_SET_DIFFERENTIAL_SURROUND_DELAY, delay)
     }
 
     inner class HeadphoneSurroundPlus {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_HEADPHONE_SURROUND_ENABLE, enabled)
-        fun setLevel(level: UByte) = audioEffect.setUByteParameter(PARAM_SET_HEADPHONE_SURROUND_LEVEL, level)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_HEADPHONE_SURROUND_ENABLE, enabled)
+        fun setLevel(level: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_HEADPHONE_SURROUND_LEVEL, level)
     }
 
     inner class Reverberation {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_REVERBERATION_ENABLE, enabled)
-        fun setRoomSize(roomSize: UByte) = audioEffect.setUByteParameter(PARAM_SET_REVERBERATION_ROOM_SIZE, roomSize)
-        fun setSoundField(soundField: UByte) = audioEffect.setUByteParameter(PARAM_SET_REVERBERATION_SOUND_FIELD, soundField)
-        fun setDamping(damping: UByte) = audioEffect.setUByteParameter(PARAM_SET_REVERBERATION_DAMPING, damping)
-        fun setWetSignal(wetSignal: UByte) = audioEffect.setUByteParameter(PARAM_SET_REVERBERATION_WET_SIGNAL, wetSignal)
-        fun setDrySignal(drySignal: UByte) = audioEffect.setUByteParameter(PARAM_SET_REVERBERATION_DRY_SIGNAL, drySignal)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_REVERBERATION_ENABLE, enabled)
+        fun setRoomSize(roomSize: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_REVERBERATION_ROOM_SIZE, roomSize)
+        fun setSoundField(soundField: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_REVERBERATION_SOUND_FIELD, soundField)
+        fun setDamping(damping: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_REVERBERATION_DAMPING, damping)
+        fun setWetSignal(wetSignal: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_REVERBERATION_WET_SIGNAL, wetSignal)
+        fun setDrySignal(drySignal: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_REVERBERATION_DRY_SIGNAL, drySignal)
     }
 
     inner class DynamicSystem {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_DYNAMIC_SYSTEM_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_DYNAMIC_SYSTEM_ENABLE, enabled)
         fun setXCoefficients(low: UShort, high: UShort) {
             val array = ByteBuffer.allocate(4).order(ByteOrder.nativeOrder())
                 .putUShort(low)
@@ -162,22 +175,27 @@ class ViPEREffect(sessionId: Int) {
                 .array()
             audioEffect.setByteArrayParameter(PARAM_SET_DYNAMIC_SYSTEM_SIDE_GAIN, array)
         }
-        fun setStrength(strength: UShort) = audioEffect.setUShortParameter(PARAM_SET_DYNAMIC_SYSTEM_STRENGTH, strength)
+        fun setStrength(strength: UShort) = audioEffect.setUShortParameter(
+            PARAM_SET_DYNAMIC_SYSTEM_STRENGTH, strength)
     }
 
     inner class TubeSimulator {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_TUBE_SIMULATOR_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_TUBE_SIMULATOR_ENABLE, enabled)
     }
 
     inner class ViPERBass {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_VIPER_BASS_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_VIPER_BASS_ENABLE, enabled)
         fun setMode(mode: UByte) = audioEffect.setUByteParameter(PARAM_SET_VIPER_BASS_MODE, mode)
-        fun setFrequency(frequency: UByte) = audioEffect.setUByteParameter(PARAM_SET_VIPER_BASS_FREQUENCY, frequency)
+        fun setFrequency(frequency: UByte) = audioEffect.setUByteParameter(
+            PARAM_SET_VIPER_BASS_FREQUENCY, frequency)
         fun setGain(gain: UShort) = audioEffect.setUShortParameter(PARAM_SET_VIPER_BASS_GAIN, gain)
     }
 
     inner class ViPERClarity {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_VIPER_CLARITY_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_VIPER_CLARITY_ENABLE, enabled)
         fun setMode(mode: UByte) = audioEffect.setUByteParameter(PARAM_SET_VIPER_CLARITY_MODE, mode)
         fun setGain(gain: UShort) = audioEffect.setUShortParameter(PARAM_SET_VIPER_CLARITY_GAIN, gain)
     }
@@ -193,21 +211,16 @@ class ViPEREffect(sessionId: Int) {
     }
 
     inner class SpeakerOptimization {
-        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(PARAM_SET_SPEAKER_OPTIMIZATION_ENABLE, enabled)
+        fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
+            PARAM_SET_SPEAKER_OPTIMIZATION_ENABLE, enabled)
     }
 
     companion object {
+        /* UUIDs */
         private val NULL_UUID = UUID.fromString("ec7178ec-e5e1-4432-a3f4-4657e6795210")
         val VIPER_UUID = UUID.fromString("90380da3-8536-4744-a6a3-5731970e640f")
 
-        // typedef enum {
-        //    PARAM_GET_ENABLED = 0,
-        //    PARAM_GET_FRAME_COUNT,
-        //    PARAM_GET_VERSION,
-        //    PARAM_GET_DISABLE_REASON,
-        //    PARAM_GET_CONFIG,
-        //    PARAM_GET_ARCHITECTURE,
-        //} param_get_t;
+        /* Get parameter */
         private const val PARAM_GET_ENABLED = 0u
         private const val PARAM_GET_FRAME_COUNT = 1u
         private const val PARAM_GET_VERSION = 2u
@@ -215,48 +228,7 @@ class ViPEREffect(sessionId: Int) {
         private const val PARAM_GET_CONFIG = 4u
         private const val PARAM_GET_ARCHITECTURE = 5u
 
-        // typedef enum {
-        //    PARAM_SET_RESET = 0,
-        //    PARAM_SET_VIPER_DDC_ENABLE,
-        //    PARAM_SET_VIPER_DDC_COEFFICIENTS,
-        //    PARAM_SET_VIPER_BASS_ENABLE,
-        //    PARAM_SET_VIPER_BASS_MODE,
-        //    PARAM_SET_VIPER_BASS_FREQUENCY,
-        //    PARAM_SET_VIPER_BASS_GAIN,
-        //    PARAM_SET_VIPER_CLARITY_ENABLE,
-        //    PARAM_SET_VIPER_CLARITY_MODE,
-        //    PARAM_SET_VIPER_CLARITY_GAIN,
-        //    PARAM_SET_OUTPUT_GAIN,
-        //    PARAM_SET_THRESHOLD_LIMIT,
-        //    PARAM_SET_SPEAKER_OPTIMIZATION_ENABLE,
-        //    PARAM_SET_ANALOGX_ENABLE,
-        //    PARAM_SET_ANALOGX_LEVEL,
-        //    PARAM_SET_TUBE_SIMULATOR_ENABLE,
-        //    PARAM_SET_CURE_ENABLE,
-        //    PARAM_SET_CURE_LEVEL,
-        //    PARAM_SET_REVERBERATION_ENABLE,
-        //    PARAM_SET_REVERBERATION_ROOM_SIZE,
-        //    PARAM_SET_REVERBERATION_SOUND_FIELD,
-        //    PARAM_SET_REVERBERATION_DAMPING,
-        //    PARAM_SET_REVERBERATION_WET_SIGNAL,
-        //    PARAM_SET_REVERBERATION_DRY_SIGNAL,
-        //    PARAM_SET_DIFFERENTIAL_SURROUND_ENABLE,
-        //    PARAM_SET_DIFFERENTIAL_SURROUND_DELAY,
-        //    PARAM_SET_FIELD_SURROUND_ENABLE,
-        //    PARAM_SET_FIELD_SURROUND_DEPTH,
-        //    PARAM_SET_FIELD_SURROUND_MID_IMAGE,
-        //    PARAM_SET_IIR_EQUALIZER_ENABLE,
-        //    PARAM_SET_IIR_EQUALIZER_BAND_LEVEL,
-        //    PARAM_SET_SPECTRUM_EXTENSION_ENABLE,
-        //    PARAM_SET_SPECTRUM_EXTENSION_STRENGTH,
-        //    PARAM_SET_HEADPHONE_SURROUND_ENABLE,
-        //    PARAM_SET_HEADPHONE_SURROUND_LEVEL,
-        //    PARAM_SET_DYNAMIC_SYSTEM_ENABLE,
-        //    PARAM_SET_DYNAMIC_SYSTEM_X_COEFFICIENTS,
-        //    PARAM_SET_DYNAMIC_SYSTEM_Y_COEFFICIENTS,
-        //    PARAM_SET_DYNAMIC_SYSTEM_SIDE_GAIN,
-        //    PARAM_SET_DYNAMIC_SYSTEM_STRENGTH,
-        //} param_set_t;
+        /* Set parameter */
         private const val PARAM_SET_RESET = 0u
         private const val PARAM_SET_VIPER_DDC_ENABLE = 1u
         private const val PARAM_SET_VIPER_DDC_COEFFICIENTS = 2u

@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.aam.viper4android.Preset
 import com.aam.viper4android.R
+import com.aam.viper4android.driver.Preset
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValuePicker
 import com.aam.viper4android.ui.component.ValueSlider

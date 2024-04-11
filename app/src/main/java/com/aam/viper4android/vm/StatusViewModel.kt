@@ -3,8 +3,8 @@ package com.aam.viper4android.vm
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aam.viper4android.StatusSession
-import com.aam.viper4android.ViPERManager
+import com.aam.viper4android.driver.ViPERManager
+import com.aam.viper4android.ui.model.StatusSession
 import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -35,6 +35,6 @@ class StatusViewModel @Inject constructor(
         return when (versionCode) {
             20240314u -> "0.7.0"
             else -> "Unknown"
-        }
+        } + " ($versionCode)"
     }
 }

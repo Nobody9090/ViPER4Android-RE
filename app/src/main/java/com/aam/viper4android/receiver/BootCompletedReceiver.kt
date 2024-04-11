@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.aam.viper4android.SettingsRepository
-import com.aam.viper4android.ViPERService
+import com.aam.viper4android.driver.ViPERService
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 

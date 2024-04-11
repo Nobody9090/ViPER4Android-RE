@@ -52,12 +52,12 @@
         </receiver>
 
         <service
-            android:name=".ViPERService"
+            android:name=".driver.ViPERService"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false" />
 
         <service
-            android:name=".ViPERRemoteService"
+            android:name=".driver.ViPERRemoteService"
             android:exported="true"
             tools:ignore="ExportedService" />
 

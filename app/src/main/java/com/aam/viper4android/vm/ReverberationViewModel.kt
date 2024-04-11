@@ -1,8 +1,8 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
-import com.aam.viper4android.Preset
-import com.aam.viper4android.ViPERManager
+import com.aam.viper4android.driver.Preset
+import com.aam.viper4android.driver.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

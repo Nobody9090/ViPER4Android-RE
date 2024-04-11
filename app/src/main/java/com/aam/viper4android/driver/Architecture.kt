@@ -1,4 +1,4 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
 enum class Architecture(val value: UByte) {
     UNKNOWN(0u),

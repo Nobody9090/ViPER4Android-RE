@@ -1,4 +1,4 @@
-package com.aam.viper4android
+package com.aam.viper4android.driver
 
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

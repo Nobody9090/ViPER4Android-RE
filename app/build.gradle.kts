@@ -91,7 +91,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
     implementation("androidx.navigation:navigation-compose:$navVersion")
-    implementation("androidx.mediarouter:mediarouter:1.7.0")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))

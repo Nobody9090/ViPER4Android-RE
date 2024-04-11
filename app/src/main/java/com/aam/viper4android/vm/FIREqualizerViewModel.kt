@@ -1,7 +1,7 @@
 package com.aam.viper4android.vm
 
 import androidx.lifecycle.ViewModel
-import com.aam.viper4android.ViPERManager
+import com.aam.viper4android.driver.ViPERManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject

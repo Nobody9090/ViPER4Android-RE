@@ -1,4 +1,4 @@
-package com.aam.viper4android.ui
+package com.aam.viper4android.ui.screen
 
 import androidx.compose.runtime.Composable
 

@@ -1,4 +1,4 @@
-package com.aam.viper4android.ui
+package com.aam.viper4android.ui.screen
 
 import android.content.Intent
 import android.util.Log
@@ -42,7 +42,7 @@ import com.aam.viper4android.PresetDialog
 import com.aam.viper4android.R
 import com.aam.viper4android.RenamePresetDialog
 import com.aam.viper4android.StatusDialog
-import com.aam.viper4android.ViPERService
+import com.aam.viper4android.driver.ViPERService
 import com.aam.viper4android.ui.component.SwitchBar
 import com.aam.viper4android.ui.effect.AnalogXEffect
 import com.aam.viper4android.ui.effect.AuditorySystemProtectionEffect

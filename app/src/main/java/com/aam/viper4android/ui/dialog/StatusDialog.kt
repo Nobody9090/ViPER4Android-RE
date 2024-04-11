@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.aam.viper4android.driver.Architecture
+import com.aam.viper4android.driver.DisableReason
 import com.aam.viper4android.vm.StatusViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -66,7 +68,7 @@ fun StatusDialog(
                                 ))
                                 Text(text = stringResource(
                                     R.string.architecture,
-                                    status.getArchitecture()
+                                    Architecture.fromValue(status.getArchitecture())
                                 ))
                                 Text(text = stringResource(
                                     R.string.enabled,
@@ -81,7 +83,7 @@ fun StatusDialog(
                                 ))
                                 Text(text = stringResource(
                                     R.string.disable_reason,
-                                    status.getDisableReason()
+                                    DisableReason.fromValue(status.getDisableReason())
                                 ))
                             }
                         }
