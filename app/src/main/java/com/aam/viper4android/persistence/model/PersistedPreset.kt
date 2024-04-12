@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.aam.viper4android.driver.Preset
 
 @Entity(tableName = "presets")
 data class PersistedPreset(
@@ -99,4 +100,31 @@ data class PersistedPreset(
     data class ViPERDDC(
         val field: String,
     )
+
+    companion object {
+        fun fromPreset(preset: Preset): PersistedPreset {
+            return PersistedPreset(
+                deviceId = "",
+                enabled = preset.enabled,
+                analogX = AnalogX(""), // TODO
+                auditorySystemProtection = AuditorySystemProtection(""), // TODO
+                convolver = Convolver(""), // TODO
+                differentialSurround = DifferentialSurround(""), // TODO
+                dynamicSystem = DynamicSystem(""), // TODO
+                fetCompressor = FETCompressor(""), // TODO
+                fieldSurroundEffect = FieldSurroundEffect(""), // TODO
+                firequalizer = FIREqualizer(""), // TODO
+                headphoneSurroundPlus = HeadphoneSurroundPlus(""), // TODO
+                masterLimiter = MasterLimiter(""), // TODO
+                playbackGainControl = PlaybackGainControl(""), // TODO
+                reverberation = Reverberation(""), // TODO
+                speakerOptimization = SpeakerOptimization(""), // TODO
+                spectrumExtension = SpectrumExtension(""), // TODO
+                tubeSimulator6N1J = TubeSimulator6N1J(""), // TODO
+                viperBass = ViPERBass(""), // TODO
+                viperClarity = ViPERClarity(""), // TODO
+                viperDDC = ViPERDDC("") // TODO
+            )
+        }
+    }
 }

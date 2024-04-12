@@ -10,6 +10,7 @@ import com.aam.viper4android.ktx.toPreset
 import com.aam.viper4android.persistence.PresetsDao
 import com.aam.viper4android.persistence.SessionDao
 import com.aam.viper4android.persistence.ViPERSettings
+import com.aam.viper4android.persistence.model.PersistedPreset
 import com.aam.viper4android.persistence.model.PersistedSession
 import com.aam.viper4android.util.debounce
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -68,7 +69,7 @@ class ViPERManager @Inject constructor(
     private var isReady = MutableStateFlow(false)
 
     init {
-        scope.launch() {
+        scope.launch {
             sessionDao.deleteObsolete(bootCount)
             observeMediaRouter()
             collectCurrentRoute()
@@ -116,18 +117,16 @@ class ViPERManager @Inject constructor(
     private fun collectLegacyMode() {
         scope.launch {
             viperSettings.legacyMode.collect { legacyMode ->
+                sessions.forEach { it.release() }
+                sessions.clear()
                 if (legacyMode) {
-                    sessions.forEach { it.release() }
-                    sessions.clear()
                     addSessionSafe(context.packageName, 0)
-                    notifySessions()
                 } else {
-                    sessions.clear()
                     sessionDao.getAll().forEach {
                         addSessionSafe(it.packageName, it.sessionId)
                     }
-                    notifySessions()
                 }
+                notifySessions()
             }
         }
     }
@@ -148,7 +147,8 @@ class ViPERManager @Inject constructor(
 
     private fun addSessionSafe(packageName: String, sessionId: Int) {
         try {
-            sessions.add(Session(this, packageName, sessionId))
+            val session = Session(this, packageName, sessionId)
+            sessions.add(session)
         } catch (e: Exception) {
             Log.e(TAG, "addSessionSafe: Failed to create session", e)
         }
@@ -213,7 +213,11 @@ class ViPERManager @Inject constructor(
     }
 
     private val savePreset = debounce(5000, scope) {
-        // todo
+//        scope.launch {
+//            val routeId = currentRoute.value.getId()
+//            val preset = currentPreset.value
+//            presetDao.insert(PersistedPreset.fromPreset(preset))
+//        }
     }
 
     fun setEnabled(enabled: Boolean) {

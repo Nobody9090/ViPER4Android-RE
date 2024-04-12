@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -158,24 +159,28 @@ private fun ValuePickerDialog(
 @Preview
 @Composable
 private fun ValuePickerPreview() {
-    ValuePicker(
-        title = "Device type",
-        values = arrayOf("Headphones", "Speaker", "Car", "Custom"),
-        selectedIndex = 0,
-        onSelectedIndexChange = {},
-        onSelectedIndexReset = {}
-    )
+    Surface {
+        ValuePicker(
+            title = "Device type",
+            values = arrayOf("Headphones", "Speaker", "Car", "Custom"),
+            selectedIndex = 0,
+            onSelectedIndexChange = {},
+            onSelectedIndexReset = {}
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun ValuePickerDialogPreview() {
-    ValuePickerDialog(
-        title = "Device type",
-        values = arrayOf("Headphones", "Speaker", "Car", "Custom"),
-        selectedIndex = 0,
-        onSelectedIndexChange = {},
-        onSelectedIndexReset = {},
-        onDismissRequest = {}
-    )
+    Surface {
+        ValuePickerDialog(
+            title = "Device type",
+            values = arrayOf("Headphones", "Speaker", "Car", "Custom"),
+            selectedIndex = 0,
+            onSelectedIndexChange = {},
+            onSelectedIndexReset = {},
+            onDismissRequest = {}
+        )
+    }
 }
