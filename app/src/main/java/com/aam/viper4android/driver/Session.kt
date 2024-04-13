@@ -11,9 +11,9 @@ import kotlin.math.roundToInt
 data class Session(
     private val viperManager: ViPERManager,
     val packageName: String,
-    val sessionId: Int,
+    val id: Int,
 ) {
-    val effect = ViPEREffect(sessionId)
+    val effect = ViPEREffect(id)
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private var lastFirEqualizerGains = listOf<Float>()

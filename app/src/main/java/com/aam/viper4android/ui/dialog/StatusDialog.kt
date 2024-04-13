@@ -54,7 +54,7 @@ fun StatusDialog(
                             session.session.effect.status
                         }
 
-                        key(session.session.sessionId) {
+                        key(session.session.id) {
                             Column {
                                 Text(
                                     text = session.name,

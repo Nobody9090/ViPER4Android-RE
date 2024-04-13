@@ -1,7 +1,6 @@
 package com.aam.viper4android.driver
 
 data class Preset(
-    var name: String = DEFAULT_NAME,
     var enabled: Boolean = DEFAULT_ENABLED,
     val analogX: AnalogX = AnalogX(),
     val auditorySystemProtection: AuditorySystemProtection = AuditorySystemProtection(),
@@ -285,7 +284,6 @@ data class Preset(
     }
 
     companion object {
-        const val DEFAULT_NAME: String = "Untitled preset"
         const val DEFAULT_ENABLED: Boolean = false
     }
 }

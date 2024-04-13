@@ -10,27 +10,27 @@ import javax.inject.Inject
 class FieldSurroundViewModel @Inject constructor(
     private val viperManager: ViPERManager,
 ) : ViewModel() {
-    val enabled = viperManager.fieldSurroundEffect.enabled
-    val surroundStrength = viperManager.fieldSurroundEffect.surroundStrength
-    val midImageStrength = viperManager.fieldSurroundEffect.midImageStrength
+    val enabled = viperManager.fieldSurround.enabled
+    val surroundStrength = viperManager.fieldSurround.surroundStrength
+    val midImageStrength = viperManager.fieldSurround.midImageStrength
 
     fun setEnabled(enabled: Boolean) {
-        viperManager.fieldSurroundEffect.setEnabled(enabled)
+        viperManager.fieldSurround.setEnabled(enabled)
     }
 
     fun setSurroundStrength(surroundStrength: Int) {
-        viperManager.fieldSurroundEffect.setSurroundStrength(surroundStrength)
+        viperManager.fieldSurround.setSurroundStrength(surroundStrength)
     }
 
     fun resetSurroundStrength() {
-        viperManager.fieldSurroundEffect.setSurroundStrength(Preset.FieldSurround.DEFAULT_SURROUND_STRENGTH)
+        viperManager.fieldSurround.setSurroundStrength(Preset.FieldSurround.DEFAULT_SURROUND_STRENGTH)
     }
 
     fun setMidImageStrength(midImageStrength: Int) {
-        viperManager.fieldSurroundEffect.setMidImageStrength(midImageStrength)
+        viperManager.fieldSurround.setMidImageStrength(midImageStrength)
     }
 
     fun resetMidImageStrength() {
-        viperManager.fieldSurroundEffect.setMidImageStrength(Preset.FieldSurround.DEFAULT_MID_IMAGE_STRENGTH)
+        viperManager.fieldSurround.setMidImageStrength(Preset.FieldSurround.DEFAULT_MID_IMAGE_STRENGTH)
     }
 }

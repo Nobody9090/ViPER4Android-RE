@@ -17,8 +17,8 @@ interface SessionDao {
     suspend fun insert(session: PersistedSession)
 
     // Delete session by packageName and sessionId
-    @Query("DELETE FROM sessions WHERE package_name = :packageName AND session_id = :sessionId")
-    suspend fun delete(packageName: String, sessionId: Int)
+    @Query("DELETE FROM sessions WHERE id = :sessionId")
+    suspend fun delete(sessionId: Int)
 
     // Delete all sessions where boot_count is not equal to the current boot count
     @Query("DELETE FROM sessions WHERE boot_count != :bootCount")

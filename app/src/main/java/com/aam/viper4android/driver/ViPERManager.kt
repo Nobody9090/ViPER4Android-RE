@@ -6,7 +6,6 @@ import android.media.audiofx.AudioEffect
 import android.util.Log
 import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.ktx.getSelectedLiveAudioRoute
-import com.aam.viper4android.ktx.toPreset
 import com.aam.viper4android.persistence.PresetsDao
 import com.aam.viper4android.persistence.SessionDao
 import com.aam.viper4android.persistence.ViPERSettings
@@ -51,7 +50,7 @@ class ViPERManager @Inject constructor(
     val differentialSurround = DifferentialSurround()
     val dynamicSystem = DynamicSystem()
     val fetCompressor = FETCompressor()
-    val fieldSurroundEffect = FieldSurroundEffect()
+    val fieldSurround = FieldSurround()
     val firEqualizer = FIREqualizer()
     val headphoneSurroundPlus = HeadphoneSurroundPlus()
     val masterLimiter = MasterLimiter()
@@ -123,7 +122,7 @@ class ViPERManager @Inject constructor(
                     addSessionSafe(context.packageName, 0)
                 } else {
                     sessionDao.getAll().forEach {
-                        addSessionSafe(it.packageName, it.sessionId)
+                        addSessionSafe(it.packageName, it.id)
                     }
                 }
                 notifySessions()
@@ -158,15 +157,15 @@ class ViPERManager @Inject constructor(
         waitForReady()
         sessionDao.insert(PersistedSession(packageName, sessionId, bootCount))
         if (viperSettings.legacyMode.value) return
-        if (sessions.find { it.packageName == packageName && it.sessionId == sessionId } != null) return
+        if (sessions.find { it.id == sessionId } != null) return
         addSessionSafe(packageName, sessionId)
         notifySessions()
     }
 
     suspend fun removeSession(packageName: String, sessionId: Int) {
         waitForReady()
-        sessionDao.delete(packageName, sessionId)
-        val session = sessions.find { it.packageName == packageName && it.sessionId == sessionId }
+        sessionDao.delete(sessionId)
+        val session = sessions.find { it.id == sessionId }
         if (session != null) {
             session.release()
             sessions.remove(session)
@@ -188,9 +187,9 @@ class ViPERManager @Inject constructor(
         dynamicSystem.setDeviceType(preset.dynamicSystem.deviceType)
         dynamicSystem.setDynamicBassStrength(preset.dynamicSystem.dynamicBassStrength)
         fetCompressor.setEnabled(preset.fetCompressor.enabled)
-        fieldSurroundEffect.setEnabled(preset.fieldSurround.enabled)
-        fieldSurroundEffect.setSurroundStrength(preset.fieldSurround.surroundStrength)
-        fieldSurroundEffect.setMidImageStrength(preset.fieldSurround.midImageStrength)
+        fieldSurround.setEnabled(preset.fieldSurround.enabled)
+        fieldSurround.setSurroundStrength(preset.fieldSurround.surroundStrength)
+        fieldSurround.setMidImageStrength(preset.fieldSurround.midImageStrength)
         firEqualizer.setEnabled(preset.firEqualizer.enabled)
         headphoneSurroundPlus.setEnabled(preset.headphoneSurroundPlus.enabled)
         masterLimiter.setOutputGain(preset.masterLimiter.outputGain)
@@ -212,12 +211,12 @@ class ViPERManager @Inject constructor(
         viperDdc.setEnabled(preset.viperDdc.enabled)
     }
 
-    private val savePreset = debounce(5000, scope) {
-//        scope.launch {
-//            val routeId = currentRoute.value.getId()
-//            val preset = currentPreset.value
-//            presetDao.insert(PersistedPreset.fromPreset(preset))
-//        }
+    private val savePreset = debounce(1000, scope) {
+        scope.launch {
+            val routeId = currentRoute.value.getId()
+            val preset = currentPreset.value
+            presetDao.insert(PersistedPreset.fromPreset(routeId, preset))
+        }
     }
 
     fun setEnabled(enabled: Boolean) {
@@ -350,7 +349,7 @@ class ViPERManager @Inject constructor(
         }
     }
 
-    inner class FieldSurroundEffect {
+    inner class FieldSurround {
         private val _enabled = MutableStateFlow(Preset.FieldSurround.DEFAULT_ENABLED)
         val enabled = _enabled.asStateFlow()
 

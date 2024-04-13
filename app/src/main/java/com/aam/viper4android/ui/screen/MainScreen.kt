@@ -40,7 +40,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.PresetDialog
 import com.aam.viper4android.R
-import com.aam.viper4android.RenamePresetDialog
 import com.aam.viper4android.StatusDialog
 import com.aam.viper4android.driver.ViPERService
 import com.aam.viper4android.ui.component.SwitchBar
@@ -71,7 +70,6 @@ fun MainScreen(
     onNavigateToSettings: () -> Unit,
 ) {
     val context = LocalContext.current
-    val presetName = viewModel.presetName.collectAsState().value
     val enabled = viewModel.enabled.collectAsState().value
 
     LaunchedEffect(context) {
@@ -86,7 +84,6 @@ fun MainScreen(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    var openRenamePresetDialog by rememberSaveable { mutableStateOf(false) }
     var openStatusDialog by rememberSaveable { mutableStateOf(false) }
     var openPresetDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -192,13 +189,6 @@ fun MainScreen(
         }
     }
 
-    if (openRenamePresetDialog) {
-        RenamePresetDialog(
-            name = presetName,
-            onNameChanged = viewModel::setPresetName,
-            onDismissRequest = { openRenamePresetDialog = false }
-        )
-    }
     if (openStatusDialog) {
         StatusDialog(onDismissRequest = { openStatusDialog = false })
     }

@@ -32,18 +32,7 @@ class MainViewModel @Inject constructor(
     private val _startDestination = MutableStateFlow(findStartDestination())
     val startDestination = _startDestination.asStateFlow()
 
-    private val _presetName = MutableStateFlow("")
-    val presetName = _presetName.asStateFlow()
-
     val enabled = viperManager.enabled
-
-    init {
-        viewModelScope.launch {
-            viperManager.currentPreset.collect { preset ->
-                _presetName.value = preset.name
-            }
-        }
-    }
 
     private fun findStartDestination(): String {
         return when {
@@ -61,10 +50,6 @@ class MainViewModel @Inject constructor(
     fun setOnboardingShown() {
         runBlocking { dataStore.edit { it[ONBOARDING_SHOWN] = true } }
         _startDestination.value = findStartDestination()
-    }
-
-    fun setPresetName(name: String) {
-        // TODO
     }
 
     fun setEnabled(enabled: Boolean) = viperManager.setEnabled(enabled)

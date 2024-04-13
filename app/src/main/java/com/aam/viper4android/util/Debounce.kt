@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 
 // A utility function to debounce any function call
 fun debounce(
-    delayMillis: Long = 300L, // Default delay of 300ms
+    delayMillis: Long, // Delay in ms
     scope: CoroutineScope, // CoroutineScope in which to launch the debounce
     action: () -> Unit // The action to debounce
 ): () -> Unit {
