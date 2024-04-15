@@ -9,11 +9,9 @@ import androidx.navigation.compose.rememberNavController
 import com.aam.viper4android.ui.screen.MainScreen
 import com.aam.viper4android.ui.screen.OnboardingScreen
 import com.aam.viper4android.ui.screen.SettingsScreen
-import com.aam.viper4android.ui.screen.ViPERNotAvailableScreen
 import com.aam.viper4android.vm.MainViewModel
 
 sealed class Screen(val route: String) {
-    object ViPERNotAvailable : Screen("viper_not_available")
     object Onboarding : Screen("onboarding")
     object Main : Screen("main")
     object Settings : Screen("settings")
@@ -28,11 +26,8 @@ fun ViPERApp(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = startDestination
     ) {
-        composable(Screen.ViPERNotAvailable.route) {
-            ViPERNotAvailableScreen()
-        }
         composable(Screen.Onboarding.route) {
             OnboardingScreen(
                 onOnboardingComplete = viewModel::setOnboardingShown
