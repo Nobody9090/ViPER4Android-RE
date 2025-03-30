@@ -7,8 +7,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
-import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ViPERRemoteService : Service() {
@@ -16,7 +16,6 @@ class ViPERRemoteService : Service() {
     private var messenger: Messenger? = null
 
     private class IncomingHandler(private val viperManager: ViPERManager) : Handler(Looper.getMainLooper()) {
-        private val TAG = "ViPERRemoteService"
         private val MSG_GET_PARAMETER = 1
         private val MSG_GET_PARAMETER_EFFECT_ANALOGX = 1
         private val MSG_GET_PARAMETER_EFFECT_ANALOGX_ENABLED = 1
@@ -36,12 +35,12 @@ class ViPERRemoteService : Service() {
 
                         }
                         else -> {
-                            Log.e(TAG, "handleGetParameter: Unknown AnalogX parameter: $parameter")
+                            Timber.e("handleGetParameter: Unknown AnalogX parameter: $parameter")
                         }
                     }
                 }
                 else -> {
-                    Log.e(TAG, "handleGetParameter: Unknown effect: $effect")
+                    Timber.e("handleGetParameter: Unknown effect: $effect")
                 }
             }
         }

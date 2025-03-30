@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.media.audiofx.AudioEffect
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -20,6 +19,7 @@ import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,10 +50,10 @@ class ViPERService : LifecycleService() {
                     getNotification(),
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
                 )
-                Log.d(TAG, "onStartCommand: Started foreground service")
+                Timber.d("onStartCommand: Started foreground service")
                 foreground = true
             } catch (e: Exception) {
-                Log.e(TAG, "onStartCommand: Failed to start foreground service", e)
+                Timber.e(e, "onStartCommand: Failed to start foreground service")
             }
         }
 
@@ -89,7 +89,7 @@ class ViPERService : LifecycleService() {
                 if (sessions.isEmpty()) {
                     val startId = lastStartId
                     if (startId != -1) {
-                        Log.d(TAG, "collectSessions: No active sessions, stopping service")
+                        Timber.d("collectSessions: No active sessions, stopping service")
                         stopSelf(startId)
                     }
                 } else {
@@ -164,7 +164,6 @@ class ViPERService : LifecycleService() {
     }
 
     companion object {
-        private const val TAG = "ViPERService"
         private const val SERVICE_NOTIFICATION_ID = 1
         private const val EXTRA_START_ID = "startId"
     }

@@ -3,7 +3,6 @@ package com.aam.viper4android.driver
 import android.content.Context
 import android.media.MediaRouter
 import android.media.audiofx.AudioEffect
-import android.util.Log
 import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.ktx.getSelectedLiveAudioRoute
 import com.aam.viper4android.persistence.PresetsDao
@@ -13,15 +12,18 @@ import com.aam.viper4android.persistence.model.PersistedPreset
 import com.aam.viper4android.persistence.model.PersistedSession
 import com.aam.viper4android.util.debounce
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -149,7 +151,7 @@ class ViPERManager @Inject constructor(
             val session = Session(this, packageName, sessionId)
             sessions.add(session)
         } catch (e: Exception) {
-            Log.e(TAG, "addSessionSafe: Failed to create session", e)
+            Timber.e(e, "addSessionSafe: Failed to create session")
         }
     }
 
@@ -708,8 +710,6 @@ class ViPERManager @Inject constructor(
     }
 
     companion object {
-        private const val TAG = "ViPERManager"
-
         val isViperAvailable by lazy {
             AudioEffect.queryEffects()
                 ?.any { it.uuid == ViPEREffect.VIPER_UUID } == true

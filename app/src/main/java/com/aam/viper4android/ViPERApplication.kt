@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.os.Build
 import com.aam.viper4android.util.HiddenApi
 import dagger.hilt.android.HiltAndroidApp
+import timber.log.Timber
 
 @HiltAndroidApp
 class ViPERApplication : Application() {
@@ -15,6 +16,9 @@ class ViPERApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        Timber.plant(Timber.DebugTree())
+
         HiddenApi.unseal()
         createNotificationChannels()
     }

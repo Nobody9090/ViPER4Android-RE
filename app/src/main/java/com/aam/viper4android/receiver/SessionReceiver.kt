@@ -4,12 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.audiofx.AudioEffect
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.aam.viper4android.driver.ViPERService
 import dagger.hilt.android.AndroidEntryPoint
-
-private const val TAG = "SessionReceiver"
+import timber.log.Timber
 
 @AndroidEntryPoint
 class SessionReceiver : BroadcastReceiver() {
@@ -20,13 +18,13 @@ class SessionReceiver : BroadcastReceiver() {
 
         val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
         if (sessionId == -1) {
-            Log.e(TAG, "onReceive: Missing sessionId!")
+            Timber.e("onReceive: Missing sessionId!")
             return
         }
 
         var packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
         if (packageName == null) {
-            Log.w(TAG, "onReceive: Missing packageName for session $sessionId")
+            Timber.w("onReceive: Missing packageName for session $sessionId")
             packageName = context.packageName // Use a generic package name
         }
 
@@ -38,7 +36,7 @@ class SessionReceiver : BroadcastReceiver() {
                 try {
                     ContextCompat.startForegroundService(context, it)
                 } catch (e: Exception) {
-                    Log.e(TAG, "onReceive: Failed to start service", e)
+                    Timber.e(e, "onReceive: Failed to start service")
                 }
             }
     }

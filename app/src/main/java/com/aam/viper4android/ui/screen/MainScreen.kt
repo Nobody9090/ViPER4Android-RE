@@ -1,7 +1,6 @@
 package com.aam.viper4android.ui.screen
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
@@ -59,8 +58,7 @@ import com.aam.viper4android.ui.effect.ViPERBassEffect
 import com.aam.viper4android.ui.effect.ViPERClarityEffect
 import com.aam.viper4android.ui.effect.ViPERDDCEffect
 import com.aam.viper4android.vm.MainViewModel
-
-private const val TAG = "MainScreen"
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +74,7 @@ fun MainScreen(
             try {
                 ContextCompat.startForegroundService(context, it)
             } catch (e: Exception) {
-                Log.e(TAG, "onCreate: Failed to start service", e)
+                Timber.e(e, "onCreate: Failed to start service")
             }
         }
     }

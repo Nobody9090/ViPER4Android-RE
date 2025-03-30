@@ -3,13 +3,11 @@ package com.aam.viper4android.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.aam.viper4android.SettingsRepository
 import com.aam.viper4android.driver.ViPERService
 import dagger.hilt.android.AndroidEntryPoint
-
-private const val TAG = "BootCompletedReceiver"
+import timber.log.Timber
 
 @AndroidEntryPoint
 class BootCompletedReceiver : BroadcastReceiver() {
@@ -24,7 +22,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
             try {
                 ContextCompat.startForegroundService(context, it)
             } catch (e: Exception) {
-                Log.e(TAG, "onReceive: Failed to start service", e)
+                Timber.e(e, "onReceive: Failed to start service")
             }
         }
     }
