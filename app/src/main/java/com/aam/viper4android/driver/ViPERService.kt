@@ -17,7 +17,6 @@ import com.aam.viper4android.R
 import com.aam.viper4android.ViPERApplication
 import com.aam.viper4android.persistence.ViPERSettings
 import com.aam.viper4android.util.AndroidUtils
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -55,7 +54,6 @@ class ViPERService : LifecycleService() {
                 foreground = true
             } catch (e: Exception) {
                 Log.e(TAG, "onStartCommand: Failed to start foreground service", e)
-                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
 

@@ -7,7 +7,6 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.aam.viper4android.SettingsRepository
 import com.aam.viper4android.driver.ViPERService
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "BootCompletedReceiver"
@@ -26,7 +25,6 @@ class BootCompletedReceiver : BroadcastReceiver() {
                 ContextCompat.startForegroundService(context, it)
             } catch (e: Exception) {
                 Log.e(TAG, "onReceive: Failed to start service", e)
-                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }

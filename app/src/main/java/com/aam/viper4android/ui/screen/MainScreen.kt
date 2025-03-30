@@ -59,7 +59,6 @@ import com.aam.viper4android.ui.effect.ViPERBassEffect
 import com.aam.viper4android.ui.effect.ViPERClarityEffect
 import com.aam.viper4android.ui.effect.ViPERDDCEffect
 import com.aam.viper4android.vm.MainViewModel
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 private const val TAG = "MainScreen"
 
@@ -78,7 +77,6 @@ fun MainScreen(
                 ContextCompat.startForegroundService(context, it)
             } catch (e: Exception) {
                 Log.e(TAG, "onCreate: Failed to start service", e)
-                FirebaseCrashlytics.getInstance().recordException(e)
             }
         }
     }
