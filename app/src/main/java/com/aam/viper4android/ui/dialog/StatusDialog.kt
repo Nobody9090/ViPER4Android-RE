@@ -11,6 +11,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -50,8 +52,10 @@ fun StatusDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(sessions) { session ->
-                        val status = remember(session, timerState.intValue) {
-                            session.session.effect.status
+                        val status by remember {
+                            derivedStateOf {
+                                session.session.effect.status
+                            }
                         }
 
                         key(session.session.id) {

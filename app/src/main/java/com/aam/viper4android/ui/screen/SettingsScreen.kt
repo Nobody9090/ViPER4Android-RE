@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,6 +58,8 @@ fun SettingsScreen(
             )
         }
     ) { innerPadding ->
+        val legacyMode = viewModel.legacyMode.collectAsState().value
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -69,8 +72,8 @@ fun SettingsScreen(
                 SwitchPreference(
                     title = "Legacy mode",
                     summary = "Attaches to system-wide session \"0\" (deprecated).",
-                    checked = true,
-                    onCheckedChange = { /*TODO*/ }
+                    checked = legacyMode,
+                    onCheckedChange = viewModel::setLegacyMode
                 )
             }
             CategoryPreference(

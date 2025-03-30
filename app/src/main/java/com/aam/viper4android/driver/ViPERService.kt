@@ -35,12 +35,9 @@ class ViPERService : LifecycleService() {
     private var foreground = false
     private var lastStartId = -1;
 
-    // todo: add callback or something to update the notification when a session is added or removed or legacy mode is toggled
-
     override fun onCreate() {
         super.onCreate()
-        collectIntents()
-        collectSessions()
+        collectFlows()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -70,7 +67,7 @@ class ViPERService : LifecycleService() {
         return START_STICKY
     }
 
-    private fun collectIntents() {
+    private fun collectFlows() {
         lifecycleScope.launch {
             intentsFlow.collect(::handleIntent)
         }
@@ -86,29 +83,7 @@ class ViPERService : LifecycleService() {
                 updateNotification()
             }
         }
-    }
 
-    private suspend fun handleIntent(intent: Intent) {
-        val startId = intent.getIntExtra(EXTRA_START_ID, -1)
-        if (startId != -1) lastStartId = startId
-
-        when (intent.action) {
-            AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION -> {
-                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
-                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
-                if (packageName == null || sessionId == -1) return
-                viperManager.addSession(packageName, sessionId)
-            }
-            AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION -> {
-                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
-                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
-                if (packageName == null || sessionId == -1) return
-                viperManager.removeSession(packageName, sessionId)
-            }
-        }
-    }
-
-    private fun collectSessions() {
         lifecycleScope.launch {
             viperManager.waitForReady()
             viperManager.currentSessions.collect { sessions ->
@@ -122,6 +97,26 @@ class ViPERService : LifecycleService() {
                 } else {
                     updateNotification()
                 }
+            }
+        }
+    }
+
+    private suspend fun handleIntent(intent: Intent) {
+        val startId = intent.getIntExtra(EXTRA_START_ID, -1)
+        if (startId != -1) lastStartId = startId
+
+        when (intent.action) {
+            AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION -> {
+                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
+                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
+                if (sessionId == -1 || packageName == null) return
+                viperManager.addSession(packageName, sessionId)
+            }
+            AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION -> {
+                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
+                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
+                if (sessionId == -1 || packageName == null) return
+                viperManager.removeSession(packageName, sessionId)
             }
         }
     }
@@ -166,7 +161,7 @@ class ViPERService : LifecycleService() {
     private fun getSessionAppLabelsString(): String {
         val sessions = viperManager.currentSessions.value
         return sessions.distinctBy { it.packageName }.map {
-            if (it.id != 0 && it.packageName == "android") "Unknown" else AndroidUtils.getApplicationLabel(this, it.packageName)
+            if (it.id != 0 && it.packageName == packageName) "Unknown" else AndroidUtils.getApplicationLabel(this, it.packageName)
         }.distinct().joinToString().ifEmpty { getString(R.string.no_active_sessions) }
     }
 

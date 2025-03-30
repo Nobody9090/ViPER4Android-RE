@@ -22,7 +22,7 @@ class StatusViewModel @Inject constructor(
         sessions.map { session ->
             StatusSession(
                 session = session,
-                name = if (session.id != 0 && session.packageName == "android") "Unknown" else AndroidUtils.getApplicationLabel(context, session.packageName),
+                name = if (session.id != 0 && session.packageName == context.packageName) "Unknown" else AndroidUtils.getApplicationLabel(context, session.packageName),
             )
         }
     }.stateIn(

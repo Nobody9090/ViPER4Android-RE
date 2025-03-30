@@ -19,22 +19,22 @@ class SessionReceiver : BroadcastReceiver() {
         if (intent.action != AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION &&
             intent.action != AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION) return
 
-        var packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
         val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
         if (sessionId == -1) {
             Log.e(TAG, "onReceive: Missing sessionId!")
             return
         }
 
+        var packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
         if (packageName == null) {
             Log.w(TAG, "onReceive: Missing packageName for session $sessionId")
-            packageName = "android" // Use a generic package name
+            packageName = context.packageName // Use a generic package name
         }
 
         Intent(context, ViPERService::class.java)
             .setAction(intent.action)
-            .putExtra(AudioEffect.EXTRA_PACKAGE_NAME, packageName)
             .putExtra(AudioEffect.EXTRA_AUDIO_SESSION, sessionId)
+            .putExtra(AudioEffect.EXTRA_PACKAGE_NAME, packageName)
             .let {
                 try {
                     ContextCompat.startForegroundService(context, it)

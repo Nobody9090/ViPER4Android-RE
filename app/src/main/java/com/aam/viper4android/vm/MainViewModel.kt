@@ -33,16 +33,15 @@ class MainViewModel @Inject constructor(
     val enabled = viperManager.enabled
 
     private fun findStartDestination(): String {
-        return when {
-//            !ViPERManager.isViperAvailable -> Screen.ViPERNotAvailable.route
-            shouldShowOnboarding() -> Screen.Onboarding.route
-            else -> Screen.Main.route
+        return if (shouldShowOnboarding()) {
+            Screen.Onboarding.route
+        } else {
+            Screen.Main.route
         }
     }
 
     private fun shouldShowOnboarding(): Boolean {
-        // TODO: Enable after development is finished
-        return runBlocking { dataStore.data.first()[ONBOARDING_SHOWN] != true }
+        return !ViPERManager.isViperAvailable || runBlocking { dataStore.data.first()[ONBOARDING_SHOWN] != true }
     }
 
     fun setOnboardingShown() {
