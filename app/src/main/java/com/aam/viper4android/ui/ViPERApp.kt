@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aam.viper4android.ui.screen.MainScreen
-import com.aam.viper4android.ui.screen.OnboardingScreen
+import com.aam.viper4android.ui.onboarding.OnboardingScreen
 import com.aam.viper4android.ui.screen.SettingsScreen
 import com.aam.viper4android.vm.MainViewModel
 

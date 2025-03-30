@@ -1,10 +1,9 @@
-package com.aam.viper4android.ui.screen
+package com.aam.viper4android.ui.onboarding
 
 import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
@@ -42,13 +41,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
 import com.aam.viper4android.driver.ViPERManager
 import com.aam.viper4android.ui.component.OnboardingCard
 
 @Composable
 fun OnboardingScreen(
-    onOnboardingComplete: () -> Unit
+    onOnboardingComplete: () -> Unit,
+    onboardingViewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val powerManager = remember(context) { context.getSystemService(PowerManager::class.java) }
@@ -60,9 +62,8 @@ fun OnboardingScreen(
     val batteryOptimizationsResultLauncher = rememberLauncherForActivityResult(
         object : ActivityResultContract<Unit, Boolean>() {
             override fun createIntent(context: Context, input: Unit): Intent {
-                return Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).also {
-                    it.data = Uri.parse("package:${context.packageName}")
-                }
+                return Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+                    .setData("package:${context.packageName}".toUri())
             }
             override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
                 return powerManager.isIgnoringBatteryOptimizations(context.packageName)
@@ -71,8 +72,8 @@ fun OnboardingScreen(
             override fun getSynchronousResult(
                 context: Context,
                 input: Unit
-            ): SynchronousResult<Boolean> {
-                return SynchronousResult(powerManager.isIgnoringBatteryOptimizations(context.packageName))
+            ): SynchronousResult<Boolean>? {
+                return null
             }
         }
     ) {
