@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -32,7 +34,9 @@ fun OnboardingCard(
     onClick: () -> Unit
 ) {
     OutlinedCard(
-        modifier = modifier.clickable(enabled = !isDone, onClick = onClick)
+        modifier = modifier
+            .clip(CardDefaults.outlinedShape)
+            .clickable(enabled = !isDone, onClick = onClick)
     ) {
         Row(
             modifier = Modifier
