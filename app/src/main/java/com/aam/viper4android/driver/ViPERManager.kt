@@ -711,8 +711,14 @@ class ViPERManager @Inject constructor(
 
     companion object {
         val isViperAvailable by lazy {
-            AudioEffect.queryEffects()
-                ?.any { it.uuid == ViPEREffect.VIPER_UUID } == true
+            try {
+                AudioEffect.queryEffects().any {
+                    it.uuid == ViPEREffect.VIPER_UUID && it.type == ViPEREffect.VIPER_TYPE_UUID
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "isViperAvailable: Failed to query effects")
+                false
+            }
         }
     }
 }
