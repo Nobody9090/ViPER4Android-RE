@@ -1,5 +1,6 @@
 package com.aam.viper4android.driver
 
+import android.media.audiofx.AudioEffect
 import com.aam.viper4android.ktx.AudioEffectKtx
 import com.aam.viper4android.ktx.getBooleanParameter
 import com.aam.viper4android.ktx.getByteArrayParameter
@@ -16,6 +17,7 @@ import com.aam.viper4android.ktx.setByteArrayParameter
 import com.aam.viper4android.ktx.setUByteArrayParameter
 import com.aam.viper4android.ktx.setUByteParameter
 import com.aam.viper4android.ktx.setUShortParameter
+import timber.log.Timber
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.UUID
@@ -217,8 +219,19 @@ class ViPEREffect(sessionId: Int) {
 
     companion object {
         /* UUIDs */
-        val VIPER_TYPE_UUID = UUID.fromString("b9bc100c-26cd-42e6-acb6-cad8c3f778de")
-        val VIPER_UUID = UUID.fromString("90380da3-8536-4744-a6a3-5731970e640f")
+        private val VIPER_TYPE_UUID = UUID.fromString("b9bc100c-26cd-42e6-acb6-cad8c3f778de")
+        private val VIPER_UUID = UUID.fromString("90380da3-8536-4744-a6a3-5731970e640f")
+
+        val isAvailable by lazy {
+            try {
+                AudioEffect.queryEffects()?.any {
+                    it.uuid == VIPER_UUID && it.type == VIPER_TYPE_UUID
+                } == true
+            } catch (e: Exception) {
+                Timber.e(e, "isAvailable: Failed to query effects")
+                false
+            }
+        }
 
         /* Get parameter */
         private const val PARAM_GET_ENABLED = 0u

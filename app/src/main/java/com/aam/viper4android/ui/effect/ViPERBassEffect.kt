@@ -3,12 +3,13 @@ package com.aam.viper4android.ui.effect
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValuePicker
@@ -34,10 +35,10 @@ private val gainSummaryValues = arrayOf(
 fun ViPERBassEffect(
     viewModel: ViPERBassViewModel = hiltViewModel()
 ) {
-    val enabled = viewModel.enabled.collectAsState().value
-    val mode = viewModel.mode.collectAsState().value
-    val frequency = viewModel.frequency.collectAsState().value
-    val gain = viewModel.gain.collectAsState().value
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
+    val mode by viewModel.mode.collectAsStateWithLifecycle()
+    val frequency by viewModel.frequency.collectAsStateWithLifecycle()
+    val gain by viewModel.gain.collectAsStateWithLifecycle()
     
     Effect(
         icon = painterResource(R.drawable.ic_bass),

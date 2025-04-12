@@ -1,9 +1,11 @@
 package com.aam.viper4android.ui.effect
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValueSlider
@@ -41,21 +43,21 @@ private val soundFieldSummaryValues = arrayOf(
 fun ReverberationEffect(
     viewModel: ReverberationViewModel = hiltViewModel()
 ) {
-    val enabled = viewModel.enabled.collectAsState().value
-    val roomSize = viewModel.roomSize.collectAsState().value
-    val soundField = viewModel.soundField.collectAsState().value
-    val damping = viewModel.damping.collectAsState().value
-    val wetSignal = viewModel.wetSignal.collectAsState().value
-    val drySignal = viewModel.drySignal.collectAsState().value
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
+    val roomSize by viewModel.roomSize.collectAsStateWithLifecycle()
+    val soundField by viewModel.soundField.collectAsStateWithLifecycle()
+    val damping by viewModel.damping.collectAsStateWithLifecycle()
+    val wetSignal by viewModel.wetSignal.collectAsStateWithLifecycle()
+    val drySignal by viewModel.drySignal.collectAsStateWithLifecycle()
 
     Effect(
         icon = painterResource(R.drawable.ic_reverb),
-        title = "Reverberation",
+        title = stringResource(R.string.reverberation),
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {
         ValueSlider(
-            title = "Room size",
+            title = stringResource(R.string.reverberation_room_size),
             summary = roomSizeSummaryValues[roomSize / 10],
             summaryUnit = "m²",
             value = roomSize,
@@ -65,7 +67,7 @@ fun ReverberationEffect(
             steps = roomSizeSummaryValues.size - 2
         )
         ValueSlider(
-            title = "Sound field",
+            title = stringResource(R.string.reverberation_sound_field),
             summary = soundFieldSummaryValues[soundField / 10],
             summaryUnit = "m",
             value = soundField,
@@ -75,7 +77,7 @@ fun ReverberationEffect(
             steps = soundFieldSummaryValues.size - 2
         )
         ValueSlider(
-            title = "Damping factor",
+            title = stringResource(R.string.reverberation_damping_factor),
             summaryUnit = "%",
             value = damping,
             onValueChange = viewModel::setDamping,
@@ -83,7 +85,7 @@ fun ReverberationEffect(
             valueRange = 0..100
         )
         ValueSlider(
-            title = "Wet signal",
+            title = stringResource(R.string.reverberation_wet_signal),
             summaryUnit = "%",
             value = wetSignal,
             onValueChange = viewModel::setWetSignal,
@@ -91,7 +93,7 @@ fun ReverberationEffect(
             valueRange = 0..100
         )
         ValueSlider(
-            title = "Dry signal",
+            title = stringResource(R.string.reverberation_dry_signal),
             summaryUnit = "%",
             value = drySignal,
             onValueChange = viewModel::setDrySignal,

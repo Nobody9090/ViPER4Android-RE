@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.audiofx.AudioEffect
 import androidx.core.content.ContextCompat
+import com.aam.viper4android.driver.ViPEREffect
 import com.aam.viper4android.driver.ViPERService
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -15,6 +16,7 @@ class SessionReceiver : BroadcastReceiver() {
         if (context == null || intent == null) return
         if (intent.action != AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION &&
             intent.action != AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION) return
+        if (!ViPEREffect.isAvailable) return
 
         val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
         if (sessionId == -1) {

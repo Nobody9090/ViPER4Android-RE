@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
 import com.aam.viper4android.SettingsRepository
+import com.aam.viper4android.driver.ViPEREffect
 import com.aam.viper4android.driver.ViPERService
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -16,7 +17,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
-        if (!settingsRepository.serviceAlwaysActive) return
+        if (!ViPEREffect.isAvailable || !settingsRepository.serviceAlwaysActive) return
 
         Intent(context, ViPERService::class.java).let {
             try {

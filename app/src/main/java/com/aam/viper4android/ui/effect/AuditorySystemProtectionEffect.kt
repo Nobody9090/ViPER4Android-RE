@@ -1,9 +1,11 @@
 package com.aam.viper4android.ui.effect
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.vm.AuditorySystemProtectionViewModel
@@ -12,11 +14,11 @@ import com.aam.viper4android.vm.AuditorySystemProtectionViewModel
 fun AuditorySystemProtectionEffect(
     viewModel: AuditorySystemProtectionViewModel = hiltViewModel()
 ) {
-    val enabled = viewModel.enabled.collectAsState().value
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
 
     Effect(
         icon = painterResource(R.drawable.ic_protection),
-        title = "Auditory system protection",
+        title = stringResource(R.string.auditory_system_protection),
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     )

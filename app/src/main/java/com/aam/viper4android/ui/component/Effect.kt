@@ -111,7 +111,7 @@ fun Effect(
 
 @Preview
 @Composable
-fun PreviewPreference() {
+private fun EffectPreview() {
     Surface {
         Effect(
             icon = painterResource(R.drawable.ic_protection),

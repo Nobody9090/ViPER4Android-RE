@@ -1,9 +1,11 @@
 package com.aam.viper4android.ui.effect
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValueSlider
@@ -47,16 +49,16 @@ private val thresholdLimitSummaryValues = arrayOf(
 fun MasterLimiterEffect(
     viewModel: MasterLimiterViewModel = hiltViewModel()
 ) {
-    val outputGain = viewModel.outputGain.collectAsState().value
-    val outputPan = viewModel.outputPan.collectAsState().value
-    val thresholdLimit = viewModel.thresholdLimit.collectAsState().value
+    val outputGain by viewModel.outputGain.collectAsStateWithLifecycle()
+    val outputPan by viewModel.outputPan.collectAsStateWithLifecycle()
+    val thresholdLimit by viewModel.thresholdLimit.collectAsStateWithLifecycle()
     
     Effect(
         icon = painterResource(R.drawable.ic_master_limiter),
-        title = "Master limiter",
+        title = stringResource(R.string.master_limiter),
     ) {
         ValueSlider(
-            title = "Output gain",
+            title = stringResource(R.string.master_limiter_output_gain),
             summary = outputGainSummaryValues[outputGain],
             summaryUnit = "dB",
             value = outputGain,
@@ -65,7 +67,7 @@ fun MasterLimiterEffect(
             valueRange = outputGainSummaryValues.indices
         )
         ValueSlider(
-            title = "Output pan",
+            title = stringResource(R.string.master_limiter_output_pan),
             summary = "${100 - outputPan}:${outputPan}",
             value = outputPan,
             onValueChange = viewModel::setOutputPan,
@@ -73,7 +75,7 @@ fun MasterLimiterEffect(
             valueRange = 0..100
         )
         ValueSlider(
-            title = "Threshold limit",
+            title = stringResource(R.string.master_limiter_threshold_limit),
             value = thresholdLimit,
             summary = thresholdLimitSummaryValues[thresholdLimit],
             summaryUnit = "dB",

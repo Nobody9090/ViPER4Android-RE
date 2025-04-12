@@ -3,9 +3,7 @@ package com.aam.viper4android.ui.onboarding
 import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
-import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
@@ -34,30 +32,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aam.viper4android.R
-import com.aam.viper4android.driver.ViPERManager
+import com.aam.viper4android.driver.ViPEREffect
 import com.aam.viper4android.ui.component.OnboardingCard
 
 @Composable
 fun OnboardingScreen(
     onOnboardingComplete: () -> Unit,
-    onboardingViewModel: OnboardingViewModel = hiltViewModel()
+    onboardingViewModel: OnboardingViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
-    val powerManager = remember(context) { context.getSystemService(PowerManager::class.java) }
-    var isIgnoringBatteryOptimizations by remember(context, powerManager) { mutableStateOf(powerManager.isIgnoringBatteryOptimizations(context.packageName)) }
-    var hasNotificationPermission by remember(context) { mutableStateOf(
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-    ) }
+    var isIgnoringBatteryOptimizations by remember { mutableStateOf(onboardingViewModel.isIgnoringBatteryOptimizations()) }
+    var hasNotificationPermission by remember { mutableStateOf(onboardingViewModel.hasNotificationPermission()) }
 
     val batteryOptimizationsResultLauncher = rememberLauncherForActivityResult(
         object : ActivityResultContract<Unit, Boolean>() {
@@ -66,7 +59,7 @@ fun OnboardingScreen(
                     .setData("package:${context.packageName}".toUri())
             }
             override fun parseResult(resultCode: Int, intent: Intent?): Boolean {
-                return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+                return onboardingViewModel.isIgnoringBatteryOptimizations()
             }
 
             override fun getSynchronousResult(
@@ -103,14 +96,14 @@ fun OnboardingScreen(
         )
 
         Text(
-            text = "Welcome to ViPER4Android",
+            text = stringResource(R.string.onboarding_title),
             fontSize = 45.sp,
             fontWeight = FontWeight.Medium,
             lineHeight = 45.sp
         )
 
         Text(
-            text = "To proceed with the application, you need to install the driver and grant some permissions for the application to work correctly.",
+            text = stringResource(R.string.onboarding_subtitle),
             style = MaterialTheme.typography.bodyLarge,
         )
 
@@ -122,24 +115,24 @@ fun OnboardingScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OnboardingCard(
-                isDone = ViPERManager.isViperAvailable,
-                title = "Driver installed",
-                description = "The driver installed on this device",
+                isDone = ViPEREffect.isAvailable,
+                title = stringResource(R.string.onboarding_driver_title),
+                description = stringResource(R.string.onboarding_driver_description),
                 onClick = {  }
             )
 
             OnboardingCard(
                 isDone = isIgnoringBatteryOptimizations,
-                title = "Ignore battery optimization",
-                description = "Allows you to follow the sound process with greater precision",
+                title = stringResource(R.string.onboarding_battery_optimization_title),
+                description = stringResource(R.string.onboarding_battery_optimization_subtitle),
                 onClick = { batteryOptimizationsResultLauncher.launch(Unit) }
             )
 
             OnboardingCard(
                 isDone = hasNotificationPermission,
-                title = "Notification access",
-                description = "Allows the application to display notifications",
-                onClick = { notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+                title = stringResource(R.string.onboarding_notification_title),
+                description = stringResource(R.string.onboarding_notification_subtitle),
+                onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
             )
 
             Spacer(Modifier.weight(1f))
@@ -152,14 +145,14 @@ fun OnboardingScreen(
             ) {
                 Button(
                     onClick = onOnboardingComplete,
-                    enabled = ViPERManager.isViperAvailable && isIgnoringBatteryOptimizations && hasNotificationPermission
+                    enabled = ViPEREffect.isAvailable && isIgnoringBatteryOptimizations && hasNotificationPermission
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowForward,
                         contentDescription = null
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(text = "Finish")
+                    Text(text = stringResource(R.string.onboarding_finish))
                 }
             }
         }

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
+import com.aam.viper4android.driver.ViPEREffect
 import com.aam.viper4android.driver.ViPERManager
 import com.aam.viper4android.ui.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +42,7 @@ class MainViewModel @Inject constructor(
     }
 
     private fun shouldShowOnboarding(): Boolean {
-        return !ViPERManager.isViperAvailable || runBlocking { dataStore.data.first()[ONBOARDING_SHOWN] != true }
+        return !ViPEREffect.isAvailable || runBlocking { dataStore.data.first()[ONBOARDING_SHOWN] != true }
     }
 
     fun setOnboardingShown() {

@@ -21,7 +21,6 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,8 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.eq.EqualizerBottomSheet
@@ -43,14 +44,14 @@ import com.aam.viper4android.vm.FIREqualizerViewModel
 fun FIREqualizerEffect(
     viewModel: FIREqualizerViewModel = hiltViewModel()
 ) {
-    val enabled = viewModel.enabled.collectAsState().value
-    val gains = viewModel.gains.collectAsState().value
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
+    val gains by viewModel.gains.collectAsStateWithLifecycle()
 
     var showEditorDialog by rememberSaveable { mutableStateOf(false) }
     
     Effect(
         icon = painterResource(R.drawable.ic_equalizer),
-        title = "FIR equalizer",
+        title = stringResource(R.string.fir_equalizer),
         checked = enabled,
         onCheckedChange = viewModel::setEnabled
     ) {

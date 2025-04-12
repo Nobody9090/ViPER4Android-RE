@@ -1,10 +1,11 @@
 package com.aam.viper4android.ui.effect
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValueSlider
@@ -14,10 +15,10 @@ import com.aam.viper4android.vm.PlaybackGainControlViewModel
 fun PlaybackGainControlEffect(
     viewModel: PlaybackGainControlViewModel = hiltViewModel()
 ) {
-    val enabled = viewModel.enabled.collectAsState().value
-//    val strength = viewModel.strength.collectAsState().value
-//    val gain = viewModel.gain.collectAsState().value
-//    val threshold = viewModel.threshold.collectAsState().value
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
+//    val strength by viewModel.strength.collectAsStateWithLifecycle()
+//    val gain by viewModel.gain.collectAsStateWithLifecycle()
+//    val threshold by viewModel.threshold.collectAsStateWithLifecycle()
 
     Effect(
         icon = painterResource(R.drawable.ic_playback_gain),

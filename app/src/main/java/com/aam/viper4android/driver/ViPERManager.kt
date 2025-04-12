@@ -2,7 +2,6 @@ package com.aam.viper4android.driver
 
 import android.content.Context
 import android.media.MediaRouter
-import android.media.audiofx.AudioEffect
 import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.ktx.getSelectedLiveAudioRoute
 import com.aam.viper4android.persistence.PresetsDao
@@ -705,19 +704,6 @@ class ViPERManager @Inject constructor(
             if (_currentPreset.value.viperDdc.ddcPath != ddcPath) {
                 _currentPreset.value.viperDdc.ddcPath = ddcPath
                 savePreset()
-            }
-        }
-    }
-
-    companion object {
-        val isViperAvailable by lazy {
-            try {
-                AudioEffect.queryEffects().any {
-                    it.uuid == ViPEREffect.VIPER_UUID && it.type == ViPEREffect.VIPER_TYPE_UUID
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "isViperAvailable: Failed to query effects")
-                false
             }
         }
     }

@@ -1,10 +1,11 @@
 package com.aam.viper4android.ui.effect
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
 import com.aam.viper4android.ui.component.Effect
 import com.aam.viper4android.ui.component.ValuePicker
@@ -28,9 +29,9 @@ private val gainSummaryValues = arrayOf(
 fun ViPERClarityEffect(
     viewModel: ViPERClarityViewModel = hiltViewModel()
 ) {
-    val enabled = viewModel.enabled.collectAsState().value
-    val mode = viewModel.mode.collectAsState().value
-    val gain = viewModel.gain.collectAsState().value
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
+    val mode by viewModel.mode.collectAsStateWithLifecycle()
+    val gain by viewModel.gain.collectAsStateWithLifecycle()
     
     Effect(
         icon = painterResource(R.drawable.ic_clarity),
@@ -52,7 +53,7 @@ fun ViPERClarityEffect(
         ValueSlider(
             title = stringResource(R.string.clarity_gain),
             summary = gainSummaryValues[gain],
-            summaryUnit = "db",
+            summaryUnit = "dB",
             value = gain,
             onValueChange = viewModel::setGain,
             onValueReset = viewModel::resetGain,

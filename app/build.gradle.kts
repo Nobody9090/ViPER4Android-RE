@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.aam.viper4android"
-        minSdk = 23
+        minSdk = 31
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -47,6 +47,11 @@ android {
 
     buildFeatures {
         compose = true
+    }
+
+    lint {
+        disable += "BatteryLife"
+        disable += "QueryAllPackagesPermission"
     }
 }
 

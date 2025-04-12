@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -20,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.driver.Architecture
 import com.aam.viper4android.driver.DisableReason
 import com.aam.viper4android.vm.StatusViewModel
@@ -44,7 +44,7 @@ fun StatusDialog(
                 }
             }
 
-            val sessions = statusViewModel.sessions.collectAsState().value
+            val sessions by statusViewModel.sessions.collectAsStateWithLifecycle()
             if (sessions.isEmpty()) {
                 Text(text = stringResource(id = R.string.no_active_sessions))
             } else {

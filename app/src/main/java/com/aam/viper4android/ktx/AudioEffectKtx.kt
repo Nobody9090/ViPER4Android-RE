@@ -49,6 +49,9 @@ private fun getKeyAsParam(key: UInt) =
 private fun checkParameterLength(length: Int, expected: Int, unknownLength: Boolean = false) {
     if (length != expected) {
         when {
+            length == AudioEffect.ERROR -> throw RuntimeException("Failed to get parameter (unknown error)")
+            length == AudioEffect.ALREADY_EXISTS -> throw RuntimeException("Failed to get parameter (already exists)")
+            length == AudioEffect.ERROR_NO_INIT -> throw RuntimeException("Failed to get parameter (no init)")
             length == AudioEffect.ERROR_BAD_VALUE -> throw RuntimeException("Failed to get parameter (bad value)")
             length == AudioEffect.ERROR_INVALID_OPERATION -> throw RuntimeException("Failed to get parameter (invalid operation)")
             length == AudioEffect.ERROR_NO_MEMORY -> throw RuntimeException("Failed to get parameter (no memory)")
@@ -62,6 +65,9 @@ private fun checkParameterLength(length: Int, expected: Int, unknownLength: Bool
 private fun checkSetParameterResponse(response: Int) {
     when (response) {
         AudioEffect.SUCCESS -> return
+        AudioEffect.ERROR -> throw RuntimeException("Failed to set parameter (unknown error)")
+        AudioEffect.ALREADY_EXISTS -> throw RuntimeException("Failed to set parameter (already exists)")
+        AudioEffect.ERROR_NO_INIT -> throw RuntimeException("Failed to set parameter (no init)")
         AudioEffect.ERROR_BAD_VALUE -> throw RuntimeException("Failed to set parameter (bad value)")
         AudioEffect.ERROR_INVALID_OPERATION -> throw RuntimeException("Failed to set parameter (invalid operation)")
         AudioEffect.ERROR_NO_MEMORY -> throw RuntimeException("Failed to set parameter (no memory)")

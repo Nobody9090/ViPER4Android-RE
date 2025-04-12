@@ -19,10 +19,10 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,9 +37,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.PresetDialog
 import com.aam.viper4android.R
 import com.aam.viper4android.StatusDialog
+import com.aam.viper4android.driver.ViPEREffect
 import com.aam.viper4android.driver.ViPERService
 import com.aam.viper4android.ui.component.SwitchBar
 import com.aam.viper4android.ui.effect.AnalogXEffect
@@ -48,9 +50,7 @@ import com.aam.viper4android.ui.effect.DifferentialSurroundEffect
 import com.aam.viper4android.ui.effect.DynamicSystemEffect
 import com.aam.viper4android.ui.effect.FIREqualizerEffect
 import com.aam.viper4android.ui.effect.FieldSurroundEffect
-import com.aam.viper4android.ui.effect.HeadphoneSurroundPlusEffect
 import com.aam.viper4android.ui.effect.MasterLimiterEffect
-import com.aam.viper4android.ui.effect.ReverberationEffect
 import com.aam.viper4android.ui.effect.SpeakerOptimizationEffect
 import com.aam.viper4android.ui.effect.SpectrumExtensionEffect
 import com.aam.viper4android.ui.effect.TubeSimulator6N1JEffect
@@ -63,13 +63,17 @@ import timber.log.Timber
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    viewModel: MainViewModel = hiltViewModel(),
     onNavigateToSettings: () -> Unit,
+    mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
-    val enabled = viewModel.enabled.collectAsState().value
+    val enabled by mainViewModel.enabled.collectAsStateWithLifecycle()
 
     LaunchedEffect(context) {
+        if (!ViPEREffect.isAvailable) {
+            Timber.e("onCreate: ViPER4Android is not available")
+            return@LaunchedEffect
+        }
         Intent(context, ViPERService::class.java).let {
             try {
                 ContextCompat.startForegroundService(context, it)
@@ -88,40 +92,15 @@ fun MainScreen(
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        modifier = Modifier.padding(start = 8.dp), // Hack, will not match figma values
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+            MainTopAppBar(
+                scrollBehavior = scrollBehavior,
+                onOpenPresets = {
+                    openPresetDialog = true
                 },
-                actions = {
-                    Row(
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        IconButton(onClick = { openPresetDialog = true }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_presets),
-                                contentDescription = "Presets"
-                            )
-                        }
-                        IconButton(onClick = { openStatusDialog = true }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_driver),
-                                contentDescription = "Driver status"
-                            )
-                        }
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_settings),
-                                contentDescription = "Settings"
-                            )
-                        }
-                    }
+                onOpenDriverStatus = {
+                    openStatusDialog = true
                 },
-                scrollBehavior = scrollBehavior
+                onOpenSettings = onNavigateToSettings,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -147,15 +126,15 @@ fun MainScreen(
                     ) { enabled ->
                         Text(
                             text = if (enabled) {
-                                "Enabled"
+                                stringResource(R.string.main_enabled)
                             } else {
-                                "Disabled"
+                                stringResource(R.string.main_disabled)
                             }
                         )
                     }
                 },
                 checked = enabled,
-                onCheckedChange = viewModel::setEnabled
+                onCheckedChange = mainViewModel::setEnabled
             )
 
             AnimatedVisibility(visible = enabled) {
@@ -171,8 +150,8 @@ fun MainScreen(
 //                    ConvolverEffect()
                     FieldSurroundEffect()
                     DifferentialSurroundEffect()
-                    HeadphoneSurroundPlusEffect()
-                    ReverberationEffect()
+//                    HeadphoneSurroundPlusEffect()
+//                    ReverberationEffect()
                     DynamicSystemEffect()
                     TubeSimulator6N1JEffect()
                     ViPERBassEffect()
@@ -188,7 +167,53 @@ fun MainScreen(
     if (openStatusDialog) {
         StatusDialog(onDismissRequest = { openStatusDialog = false })
     }
+
     if (openPresetDialog) {
         PresetDialog(onDismissRequest = { openPresetDialog = false })
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainTopAppBar(
+    scrollBehavior: TopAppBarScrollBehavior,
+    onOpenPresets: () -> Unit,
+    onOpenDriverStatus: () -> Unit,
+    onOpenSettings: () -> Unit,
+) {
+    LargeTopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.app_name),
+                modifier = Modifier.padding(start = 8.dp), // Hack, will not match figma values
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        actions = {
+            Row(
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                IconButton(onClick = onOpenPresets) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_presets),
+                        contentDescription = "Presets"
+                    )
+                }
+                IconButton(onClick = onOpenDriverStatus) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_driver),
+                        contentDescription = "Driver status"
+                    )
+                }
+                IconButton(onClick = onOpenSettings) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_settings),
+                        contentDescription = "Settings"
+                    )
+                }
+            }
+        },
+        scrollBehavior = scrollBehavior
+    )
 }
