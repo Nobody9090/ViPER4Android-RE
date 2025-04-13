@@ -159,7 +159,7 @@ class ViPERManager @Inject constructor(
             waitForReady()
             sessionDao.insert(PersistedSession(packageName, sessionId, bootCount))
             if (viperSettings.legacyMode.value) return
-            if (sessions.find { it.id == sessionId } != null) return
+            if (sessions.any { it.id == sessionId }) return
             addSessionSafe(packageName, sessionId)
             updateSessions()
         }

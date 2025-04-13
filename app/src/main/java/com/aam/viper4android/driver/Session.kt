@@ -13,17 +13,17 @@ data class Session(
     val packageName: String,
     val id: Int,
 ) {
-    val effect = ViPEREffect(id)
+    val effect = ViPEREffect(id).also {
+        if (!it.audioEffect.hasControl()) {
+            it.audioEffect.release()
+            throw IllegalStateException("Failed to get control of audio effect")
+        }
+    }
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private var lastFirEqualizerGains = listOf<Float>()
 
     init {
-        if (!effect.audioEffect.hasControl()) {
-            release()
-            throw IllegalStateException("Failed to get control of audio effect")
-        }
-
         collectEffects()
     }
 
@@ -84,25 +84,25 @@ data class Session(
             effect.masterLimiter.setOutputGain(gainL, gainR)
         }
 
-        collect(viperManager.masterLimiter.thresholdLimit) {
-            effect.masterLimiter.setThresholdLimit(it.toUByte())
-        }
-        collect(viperManager.reverberation.enabled, effect.reverberation::setEnabled)
-        collect(viperManager.reverberation.roomSize) {
-            effect.reverberation.setRoomSize(it.toUByte())
-        }
-        collect(viperManager.reverberation.soundField) {
-            effect.reverberation.setSoundField(it.toUByte())
-        }
-        collect(viperManager.reverberation.damping) {
-            effect.reverberation.setDamping(it.toUByte())
-        }
-        collect(viperManager.reverberation.wetSignal) {
-            effect.reverberation.setWetSignal(it.toUByte())
-        }
-        collect(viperManager.reverberation.drySignal) {
-            effect.reverberation.setDrySignal(it.toUByte())
-        }
+//        collect(viperManager.masterLimiter.thresholdLimit) {
+//            effect.masterLimiter.setThresholdLimit(it.toUByte())
+//        }
+//        collect(viperManager.reverberation.enabled, effect.reverberation::setEnabled)
+//        collect(viperManager.reverberation.roomSize) {
+//            effect.reverberation.setRoomSize(it.toUByte())
+//        }
+//        collect(viperManager.reverberation.soundField) {
+//            effect.reverberation.setSoundField(it.toUByte())
+//        }
+//        collect(viperManager.reverberation.damping) {
+//            effect.reverberation.setDamping(it.toUByte())
+//        }
+//        collect(viperManager.reverberation.wetSignal) {
+//            effect.reverberation.setWetSignal(it.toUByte())
+//        }
+//        collect(viperManager.reverberation.drySignal) {
+//            effect.reverberation.setDrySignal(it.toUByte())
+//        }
         collect(viperManager.speakerOptimization.enabled, effect.speakerOptimization::setEnabled)
         collect(viperManager.spectrumExtension.enabled, effect.spectrumExtension::setEnabled)
         collect(viperManager.spectrumExtension.strength) {
@@ -126,7 +126,7 @@ data class Session(
         collect(viperManager.viperClarity.gain) {
             effect.viperClarity.setGain((it * 50).toUShort())
         }
-        collect(viperManager.viperDdc.enabled, effect.viperDDC::setEnabled)
+        collect(viperManager.viperDdc.enabled, effect.viperDdc::setEnabled)
         collect(viperManager.viperDdc.ddcPath) {
 
         }

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.aam.viper4android.BuildConfig
 import com.aam.viper4android.R
 import com.aam.viper4android.driver.ViPEREffect
 import com.aam.viper4android.ui.component.OnboardingCard
@@ -145,7 +146,7 @@ fun OnboardingScreen(
             ) {
                 Button(
                     onClick = onOnboardingComplete,
-                    enabled = ViPEREffect.isAvailable && isIgnoringBatteryOptimizations && hasNotificationPermission
+                    enabled = BuildConfig.DEBUG || (ViPEREffect.isAvailable && isIgnoringBatteryOptimizations && hasNotificationPermission)
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowForward,

@@ -25,19 +25,19 @@ private val getParameterMethod = AudioEffect::class.java.getDeclaredMethod(
     ByteArray::class.java
 )
 
-fun AudioEffectKtx(type: UUID, uuid: UUID, priority: Int, audioSession: Int) = try {
+fun AudioEffectKtx(type: UUID, uuid: UUID, priority: Int, audioSession: Int): AudioEffect = try {
     constructor.newInstance(type, uuid, priority, audioSession) as AudioEffect
 } catch (e: InvocationTargetException) {
     throw e.targetException
 }
 
-fun AudioEffect.setParameterKtx(param: ByteArray, value: ByteArray) = try {
+fun AudioEffect.setParameterKtx(param: ByteArray, value: ByteArray): Int = try {
     setParameterMethod.invoke(this, param, value) as Int
 } catch (e: InvocationTargetException) {
     throw e.targetException
 }
 
-fun AudioEffect.getParameterKtx(param: ByteArray, value: ByteArray) = try {
+fun AudioEffect.getParameterKtx(param: ByteArray, value: ByteArray): Int = try {
     getParameterMethod.invoke(this, param, value) as Int
 } catch (e: InvocationTargetException) {
     throw e.targetException

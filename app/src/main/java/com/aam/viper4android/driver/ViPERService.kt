@@ -18,6 +18,7 @@ import com.aam.viper4android.persistence.ViPERSettings
 import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -71,13 +72,10 @@ class ViPERService : LifecycleService() {
         }
 
         lifecycleScope.launch {
-            viperManager.currentRoute.collect {
-                updateNotification()
-            }
-        }
-
-        lifecycleScope.launch {
-            viperSettings.legacyMode.collect {
+            combine(
+                viperManager.currentRoute,
+                viperSettings.legacyMode
+            ) { currentRoute, legacyMode ->
                 updateNotification()
             }
         }

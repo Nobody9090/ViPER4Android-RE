@@ -29,18 +29,18 @@ class ViPEREffect(sessionId: Int) {
     val masterLimiter = MasterLimiter()
 //    val playbackGainControl = PlaybackGainControl()
 //    val fetCompressor = FETCompressor()
-    val viperDDC = ViPERDDC()
+    val viperDdc = ViperDdc()
     val spectrumExtension = SpectrumExtension()
-    val iirEqualizer = IIREqualizer()
+    val iirEqualizer = IirEqualizer()
 //    val convolver = Convolver()
     val fieldSurround = FieldSurround()
     val differentialSurround = DifferentialSurround()
 //    val headphoneSurroundPlus = HeadphoneSurroundPlus()
-    val reverberation = Reverberation()
+//    val reverberation = Reverberation()
     val dynamicSystem = DynamicSystem()
     val tubeSimulator = TubeSimulator()
-    val viperBass = ViPERBass()
-    val viperClarity = ViPERClarity()
+    val viperBass = ViperBass()
+    val viperClarity = ViperClarity()
     val auditorySystemProtection = AuditorySystemProtection()
     val analogX = AnalogX()
     val speakerOptimization = SpeakerOptimization()
@@ -72,7 +72,7 @@ class ViPEREffect(sessionId: Int) {
         // TODO
     }
 
-    inner class ViPERDDC {
+    inner class ViperDdc {
         fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
             PARAM_SET_VIPER_DDC_ENABLE, enabled)
         fun setCoefficients(
@@ -97,7 +97,7 @@ class ViPEREffect(sessionId: Int) {
             PARAM_SET_SPECTRUM_EXTENSION_STRENGTH, strength)
     }
 
-    inner class IIREqualizer {
+    inner class IirEqualizer {
         fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
             PARAM_SET_IIR_EQUALIZER_ENABLE, enabled)
         fun setBands(bands: UByte) {
@@ -186,7 +186,7 @@ class ViPEREffect(sessionId: Int) {
             PARAM_SET_TUBE_SIMULATOR_ENABLE, enabled)
     }
 
-    inner class ViPERBass {
+    inner class ViperBass {
         fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
             PARAM_SET_VIPER_BASS_ENABLE, enabled)
         fun setMode(mode: UByte) = audioEffect.setUByteParameter(PARAM_SET_VIPER_BASS_MODE, mode)
@@ -195,7 +195,7 @@ class ViPEREffect(sessionId: Int) {
         fun setGain(gain: UShort) = audioEffect.setUShortParameter(PARAM_SET_VIPER_BASS_GAIN, gain)
     }
 
-    inner class ViPERClarity {
+    inner class ViperClarity {
         fun setEnabled(enabled: Boolean) = audioEffect.setBooleanParameter(
             PARAM_SET_VIPER_CLARITY_ENABLE, enabled)
         fun setMode(mode: UByte) = audioEffect.setUByteParameter(PARAM_SET_VIPER_CLARITY_MODE, mode)
