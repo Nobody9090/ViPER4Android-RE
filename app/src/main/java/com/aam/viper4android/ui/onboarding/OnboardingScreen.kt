@@ -146,7 +146,7 @@ fun OnboardingScreen(
             ) {
                 Button(
                     onClick = onOnboardingComplete,
-                    enabled = BuildConfig.DEBUG || (ViPEREffect.isAvailable && isIgnoringBatteryOptimizations && hasNotificationPermission)
+                    enabled = (ViPEREffect.isAvailable || BuildConfig.DEBUG) && isIgnoringBatteryOptimizations && hasNotificationPermission
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowForward,
