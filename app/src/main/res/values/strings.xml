@@ -41,11 +41,11 @@
     <string name="onboarding_title">Welcome to ViPER4Android</string>
     <string name="onboarding_subtitle">To proceed with the application, you need to install the driver and grant some permissions for the application to work correctly.</string>
     <string name="onboarding_driver_title">Driver installed</string>
-    <string name="onboarding_driver_description">The driver installed on this device</string>
+    <string name="onboarding_driver_description">The driver needs to be installed to process the audio</string>
     <string name="onboarding_battery_optimization_title">Ignore battery optimization</string>
-    <string name="onboarding_battery_optimization_subtitle">Allows you to follow the sound process with greater precision</string>
+    <string name="onboarding_battery_optimization_subtitle">Allows ViPER4Android to run in the background</string>
     <string name="onboarding_notification_title">Notification access</string>
-    <string name="onboarding_notification_subtitle">Allows the application to display notifications</string>
+    <string name="onboarding_notification_subtitle">Allows ViPER4Android to display notifications</string>
     <string name="onboarding_finish">Finish</string>
     <string name="main_enabled">Enabled</string>
     <string name="main_disabled">Disabled</string>
