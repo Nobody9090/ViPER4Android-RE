@@ -19,7 +19,7 @@ data class Session(
             throw IllegalStateException("Failed to get control of audio effect")
         }
     }
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.Main)
 
     private var lastFirEqualizerGains = listOf<Float>()
 
@@ -136,7 +136,7 @@ data class Session(
         flow: Flow<T>,
         setter: (T) -> Unit
     ) {
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             flow.collect {
                 setter(it)
             }

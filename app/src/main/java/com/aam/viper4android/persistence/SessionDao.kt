@@ -8,9 +8,9 @@ import com.aam.viper4android.persistence.model.PersistedSession
 
 @Dao
 interface SessionDao {
-    // Get all sessions
-    @Query("SELECT * FROM sessions")
-    suspend fun getAll(): List<PersistedSession>
+    // Get all with boot count
+    @Query("SELECT * FROM sessions WHERE boot_count = :bootCount")
+    suspend fun getAll(bootCount: Int): List<PersistedSession>
 
     // Insert session
     @Insert(onConflict = OnConflictStrategy.REPLACE)
