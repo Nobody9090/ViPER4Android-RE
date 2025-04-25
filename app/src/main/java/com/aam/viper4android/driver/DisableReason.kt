@@ -9,6 +9,6 @@ enum class DisableReason(val value: Int) {
     INVALID_FORMAT(4);
 
     companion object {
-        fun fromValue(value: Int) = entries.firstOrNull { it.value == value } ?: UNKNOWN
+        fun fromValue(value: Int) = entries.find { it.value == value } ?: UNKNOWN
     }
 }

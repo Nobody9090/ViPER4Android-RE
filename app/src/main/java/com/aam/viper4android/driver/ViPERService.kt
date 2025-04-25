@@ -1,6 +1,5 @@
 package com.aam.viper4android.driver
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
@@ -14,12 +13,18 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.aam.viper4android.R
 import com.aam.viper4android.ViPERApplication
+import com.aam.viper4android.ktx.getBootCount
+import com.aam.viper4android.persistence.SessionDao
 import com.aam.viper4android.persistence.ViPERSettings
+import com.aam.viper4android.persistence.model.PersistedSession
 import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -27,100 +32,156 @@ import javax.inject.Inject
 class ViPERService : LifecycleService() {
     @Inject lateinit var viperManager: ViPERManager
     @Inject lateinit var viperSettings: ViPERSettings
+    @Inject lateinit var sessionDao: SessionDao
 
-    private val intentsFlow = MutableSharedFlow<Intent>(
-        extraBufferCapacity = Int.MAX_VALUE,
-    )
+    private val bootCount: Int = getBootCount(contentResolver)
 
-    private var foreground = false
-    private var lastStartId = -1;
+    private var sessionMutex = Mutex(locked = true)
 
     override fun onCreate() {
         super.onCreate()
+        deleteObsoleteSessions()
+        restoreSessions()
         collectFlows()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        if (!foreground) {
-            try {
-                ServiceCompat.startForeground(
-                    this,
-                    SERVICE_NOTIFICATION_ID,
-                    getNotification(),
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                )
-                Timber.d("onStartCommand: Started foreground service")
-                foreground = true
-            } catch (e: Exception) {
-                Timber.e(e, "onStartCommand: Failed to start foreground service")
-            }
+        try {
+            ServiceCompat.startForeground(
+                this,
+                SERVICE_NOTIFICATION_ID,
+                getNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+            )
+            Timber.d("onStartCommand: Started foreground service")
+        } catch (e: Exception) {
+            Timber.e(e, "onStartCommand: Failed to start foreground service")
         }
 
-        if (intent != null) {
-            intent.putExtra(EXTRA_START_ID, startId)
-            intentsFlow.tryEmit(intent)
+        when (intent?.action) {
+            AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION -> {
+                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
+                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
+                addSession(sessionId, packageName, startId)
+            }
+            AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION -> {
+                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
+                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
+                removeSession(sessionId, packageName, startId)
+            }
+            else -> {
+                checkSessions(startId)
+            }
         }
 
         return START_STICKY
     }
 
-    private fun collectFlows() {
-        lifecycleScope.launch {
-            intentsFlow.collect(::handleIntent)
+    private fun deleteObsoleteSessions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            sessionDao.deleteObsolete(bootCount)
         }
+    }
 
+    private fun restoreSessions() {
         lifecycleScope.launch {
-            combine(
-                viperManager.currentRoute,
-                viperSettings.legacyMode
-            ) { currentRoute, legacyMode ->
-                updateNotification()
+            if (viperSettings.legacyMode.value) {
+                Timber.d("restoreSessions: Legacy mode is enabled, not restoring sessions")
+                viperManager.addSession(0, packageName)
+            } else {
+                Timber.d("restoreSessions: Restoring sessions from database")
+                withContext(Dispatchers.IO) { sessionDao.getAll(bootCount) }.forEach { session ->
+                    Timber.d("restoreSessions: Restoring session ${session.id} for package ${session.packageName}")
+                    viperManager.addSession(session.id, session.packageName)
+                }
             }
+            sessionMutex.unlock()
         }
+    }
 
+    private fun addSession(id: Int, packageName: String?, startId: Int) {
         lifecycleScope.launch {
-            viperManager.currentSessions.collect { sessions ->
-                // todo: stop service when started without an intent that modifies the sessions
-                if (sessions.isEmpty()) {
-                    val startId = lastStartId
-                    if (startId != -1) {
-                        Timber.d("collectSessions: No active sessions, stopping service")
-                        stopSelf(startId)
+            sessionMutex.withLock {
+                if (id != -1) {
+                    withContext(Dispatchers.IO) {
+                        sessionDao.insert(PersistedSession(
+                            id = id,
+                            packageName = packageName,
+                            bootCount = bootCount
+                        ))
                     }
-                } else {
-                    updateNotification()
+                    if (!viperSettings.legacyMode.value) {
+                        Timber.d("addSession: Adding session $id for package $packageName")
+                        viperManager.addSession(id, packageName)
+                    } else {
+                        Timber.d("addSession: Legacy mode is enabled, not adding session $id for package $packageName")
+                    }
+                }
+
+                if (!viperManager.hasSessions()) {
+                    Timber.d("addSession: No sessions are active, stopping service (startId: $startId)")
+                    stopSelf(startId)
                 }
             }
         }
     }
 
-    private suspend fun handleIntent(intent: Intent) {
-        val startId = intent.getIntExtra(EXTRA_START_ID, -1)
-        if (startId != -1) lastStartId = startId
+    private fun removeSession(id: Int, packageName: String?, startId: Int) {
+        lifecycleScope.launch {
+            sessionMutex.withLock {
+                if (id != -1) {
+                    withContext(Dispatchers.IO) {
+                        sessionDao.delete(id)
+                    }
+                    viperManager.removeSession(id, packageName)
+                }
 
-        when (intent.action) {
-            AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION -> {
-                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
-                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
-                if (sessionId == -1 || packageName == null) return
-                viperManager.addSession(packageName, sessionId)
-            }
-            AudioEffect.ACTION_CLOSE_AUDIO_EFFECT_CONTROL_SESSION -> {
-                val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
-                val packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
-                if (sessionId == -1 || packageName == null) return
-                viperManager.removeSession(packageName, sessionId)
+                if (!viperManager.hasSessions()) {
+                    Timber.d("removeSession: No sessions are active, stopping service (startId: $startId)")
+                    stopSelf(startId)
+                }
             }
         }
     }
 
-    @SuppressLint("MissingPermission")
+    private fun checkSessions(startId: Int) {
+        lifecycleScope.launch {
+            sessionMutex.withLock {
+                if (!viperManager.hasSessions()) {
+                    Timber.d("checkSessions: No sessions are active, stopping service (startId: $startId)")
+                    stopSelf(startId)
+                }
+            }
+        }
+    }
+
+    private fun collectFlows() {
+        lifecycleScope.launch {
+            viperSettings.legacyMode.collect { legacyMode ->
+                // TODO: Handle legacy mode changes
+            }
+        }
+
+        lifecycleScope.launch {
+            combine(
+                viperManager.currentRoute,
+                viperSettings.legacyMode,
+                viperManager.currentSessions
+            ) { currentRoute, legacyMode, sessions ->
+                updateNotification()
+            }
+        }
+    }
+
     private fun updateNotification() {
-        if (!foreground) return
-        NotificationManagerCompat.from(this)
-            .notify(SERVICE_NOTIFICATION_ID, getNotification())
+        try {
+            NotificationManagerCompat.from(this)
+                .notify(SERVICE_NOTIFICATION_ID, getNotification())
+        } catch (e: Exception) {
+            Timber.e(e, "updateNotification: Failed to update notification")
+        }
     }
 
     private fun getNotification(): Notification {
@@ -155,13 +216,20 @@ class ViPERService : LifecycleService() {
 
     private fun getSessionAppLabelsString(): String {
         val sessions = viperManager.currentSessions.value
-        return sessions.distinctBy { it.packageName }.map {
-            if (it.id != 0 && it.packageName == packageName) "Unknown" else AndroidUtils.getApplicationLabel(this, it.packageName)
+        return sessions.map {
+            getSessionAppLabelString(it.packageName)
         }.distinct().joinToString().ifEmpty { getString(R.string.no_active_sessions) }
+    }
+
+    private fun getSessionAppLabelString(packageName: String?): String {
+        return if (packageName == null) {
+            "Unknown"
+        } else {
+            AndroidUtils.getApplicationLabel(this, packageName)
+        }
     }
 
     companion object {
         private const val SERVICE_NOTIFICATION_ID = 1
-        private const val EXTRA_START_ID = "startId"
     }
 }

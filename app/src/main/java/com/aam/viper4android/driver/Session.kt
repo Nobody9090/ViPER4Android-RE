@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
 
 data class Session(
     private val viperManager: ViPERManager,
-    val packageName: String,
+    val packageName: String?,
     val id: Int,
 ) {
     val effect = ViPEREffect(id).also {

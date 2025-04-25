@@ -8,6 +8,6 @@ enum class Architecture(val value: UByte) {
     X86_64(4u);
 
     companion object {
-        fun fromValue(value: UByte) = entries.firstOrNull { it.value == value } ?: UNKNOWN
+        fun fromValue(value: UByte) = entries.find { it.value == value } ?: UNKNOWN
     }
 }

@@ -2,13 +2,9 @@ package com.aam.viper4android.driver
 
 import android.content.Context
 import android.media.MediaRouter
-import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.ktx.getSelectedLiveAudioRoute
 import com.aam.viper4android.persistence.PresetsDao
-import com.aam.viper4android.persistence.SessionDao
-import com.aam.viper4android.persistence.ViPERSettings
 import com.aam.viper4android.persistence.model.PersistedPreset
-import com.aam.viper4android.persistence.model.PersistedSession
 import com.aam.viper4android.util.debounce
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -18,10 +14,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,13 +22,9 @@ import javax.inject.Singleton
 @Singleton
 class ViPERManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val viperSettings: ViPERSettings,
-    private val sessionDao: SessionDao,
     private val presetDao: PresetsDao,
 ) {
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val sessionMutex = Mutex()
-    private val bootCount = getBootCount(context.contentResolver)
     private val mediaRouter = context.getSystemService(MediaRouter::class.java)
 
     private var _currentRoute = MutableStateFlow(ViPERRoute.fromRouteInfo(mediaRouter.getSelectedLiveAudioRoute()))
@@ -73,9 +62,6 @@ class ViPERManager @Inject constructor(
 
     init {
         observeMediaRouter()
-        collectCurrentRoute()
-        collectLegacyMode()
-        deleteObsoleteSessions()
     }
 
     private fun observeMediaRouter() {
@@ -100,43 +86,11 @@ class ViPERManager @Inject constructor(
                 }
             }.collect {
                 // TODO: When adding Android Auto support, only update if not in Android Auto mode!
-                _currentRoute.value = ViPERRoute.fromRouteInfo(it)
-            }
-        }
-    }
+                val route = ViPERRoute.fromRouteInfo(it)
+                _currentRoute.value = route
 
-    private fun collectCurrentRoute() {
-        scope.launch(Dispatchers.IO) {
-            currentRoute.collect {
-                val preset = presetDao.get(it.getId())?.toPreset() ?: Preset()
+                val preset = presetDao.get(route.getId())?.toPreset() ?: Preset()
                 setPreset(preset)
-            }
-        }
-    }
-
-    private fun deleteObsoleteSessions() {
-        scope.launch(Dispatchers.IO) {
-            sessionDao.deleteObsolete(bootCount)
-        }
-    }
-
-    private fun collectLegacyMode() {
-        scope.launch {
-            viperSettings.legacyMode.collect { legacyMode ->
-                sessionMutex.withLock {
-                    sessions.removeAll {
-                        it.release()
-                        true
-                    }
-                    if (legacyMode) {
-                        addSessionSafe(context.packageName, 0)
-                    } else {
-                        sessionDao.getAll(bootCount).forEach {
-                            addSessionSafe(it.packageName, it.id)
-                        }
-                    }
-                    updateSessions()
-                }
             }
         }
     }
@@ -145,7 +99,7 @@ class ViPERManager @Inject constructor(
         _currentSessions.value = sessions.toList()
     }
 
-    private fun addSessionSafe(packageName: String, sessionId: Int) {
+    private fun addSessionSafe(packageName: String?, sessionId: Int) {
         try {
             val session = Session(this, packageName, sessionId)
             sessions.add(session)
@@ -154,26 +108,22 @@ class ViPERManager @Inject constructor(
         }
     }
 
-    suspend fun addSession(packageName: String, sessionId: Int) {
-        sessionMutex.withLock {
-            sessionDao.insert(PersistedSession(packageName, sessionId, bootCount))
-            if (viperSettings.legacyMode.value) return
-            if (sessions.any { it.id == sessionId }) return
-            addSessionSafe(packageName, sessionId)
+    fun addSession(sessionId: Int, packageName: String?) {
+        if (sessions.any { it.id == sessionId }) return
+        addSessionSafe(packageName, sessionId)
+        updateSessions()
+    }
+
+    fun removeSession(sessionId: Int, packageName: String?) {
+        sessions.find { it.id == sessionId }?.let { session ->
+            sessions.remove(session)
+            session.release()
             updateSessions()
         }
     }
 
-    suspend fun removeSession(packageName: String, sessionId: Int) {
-        sessionMutex.withLock {
-            sessionDao.delete(sessionId)
-            val session = sessions.find { it.id == sessionId }
-            if (session != null) {
-                session.release()
-                sessions.remove(session)
-                updateSessions()
-            }
-        }
+    fun hasSessions(): Boolean {
+        return sessions.isNotEmpty()
     }
 
     private fun setPreset(preset: Preset) {

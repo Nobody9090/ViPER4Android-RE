@@ -6,10 +6,9 @@ import androidx.room.Index
 
 @Entity(
     tableName = "sessions",
-    indices = [Index("boot_count")],
-    primaryKeys = ["id"])
+    primaryKeys = ["id", "boot_count"])
 data class PersistedSession(
-    @ColumnInfo(name = "package_name") val packageName: String,
     @ColumnInfo(name = "id") val id: Int,
+    @ColumnInfo(name = "package_name") val packageName: String?,
     @ColumnInfo(name = "boot_count") val bootCount: Int,
 )

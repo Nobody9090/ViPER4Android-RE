@@ -53,6 +53,7 @@ android {
     lint {
         disable += "BatteryLife"
         disable += "QueryAllPackagesPermission"
+        disable += "MissingPermission"
     }
 }
 
