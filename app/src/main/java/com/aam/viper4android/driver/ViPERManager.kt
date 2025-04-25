@@ -127,7 +127,7 @@ class ViPERManager @Inject constructor(
                     if (legacyMode) {
                         addSessionSafe(context.packageName, 0)
                     } else {
-                        sessionDao.getAll().forEach {
+                        sessionDao.getAll(bootCount).forEach {
                             addSessionSafe(it.packageName, it.id)
                         }
                     }
