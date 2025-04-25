@@ -33,7 +33,7 @@ class ViPERManager @Inject constructor(
     private val sessionDao: SessionDao,
     private val presetDao: PresetsDao,
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(Dispatchers.Main)
     private val sessionMutex = Mutex()
     private val bootCount = getBootCount(context.contentResolver)
     private val mediaRouter = context.getSystemService(MediaRouter::class.java)
@@ -70,20 +70,16 @@ class ViPERManager @Inject constructor(
 
     // Internal variables
     private val sessions = mutableListOf<Session>()
-    private var isReady = MutableStateFlow(false)
 
     init {
-        scope.launch {
-            sessionDao.deleteObsolete(bootCount)
-            observeMediaRouter()
-            collectCurrentRoute()
-            collectLegacyMode()
-            isReady.value = true
-        }
+        observeMediaRouter()
+        collectCurrentRoute()
+        collectLegacyMode()
+        deleteObsoleteSessions()
     }
 
     private fun observeMediaRouter() {
-        scope.launch(Dispatchers.Main) {
+        scope.launch {
             callbackFlow {
                 val callback = object : MediaRouter.SimpleCallback() {
                     override fun onRouteSelected(
@@ -97,7 +93,7 @@ class ViPERManager @Inject constructor(
                 mediaRouter.addCallback(MediaRouter.ROUTE_TYPE_LIVE_AUDIO, callback)
 
                 // Update the current route immediately
-                trySendBlocking(mediaRouter.getSelectedLiveAudioRoute())
+                trySend(mediaRouter.getSelectedLiveAudioRoute())
 
                 awaitClose {
                     mediaRouter.removeCallback(callback)
@@ -110,7 +106,7 @@ class ViPERManager @Inject constructor(
     }
 
     private fun collectCurrentRoute() {
-        scope.launch {
+        scope.launch(Dispatchers.IO) {
             currentRoute.collect {
                 val preset = presetDao.get(it.getId())?.toPreset() ?: Preset()
                 setPreset(preset)
@@ -118,12 +114,20 @@ class ViPERManager @Inject constructor(
         }
     }
 
+    private fun deleteObsoleteSessions() {
+        scope.launch(Dispatchers.IO) {
+            sessionDao.deleteObsolete(bootCount)
+        }
+    }
+
     private fun collectLegacyMode() {
         scope.launch {
             viperSettings.legacyMode.collect { legacyMode ->
                 sessionMutex.withLock {
-                    sessions.forEach(Session::release)
-                    sessions.clear()
+                    sessions.removeAll {
+                        it.release()
+                        true
+                    }
                     if (legacyMode) {
                         addSessionSafe(context.packageName, 0)
                     } else {
@@ -135,10 +139,6 @@ class ViPERManager @Inject constructor(
                 }
             }
         }
-    }
-
-    suspend fun waitForReady() {
-        isReady.first { it }
     }
 
     private fun updateSessions() {
@@ -156,7 +156,6 @@ class ViPERManager @Inject constructor(
 
     suspend fun addSession(packageName: String, sessionId: Int) {
         sessionMutex.withLock {
-            waitForReady()
             sessionDao.insert(PersistedSession(packageName, sessionId, bootCount))
             if (viperSettings.legacyMode.value) return
             if (sessions.any { it.id == sessionId }) return
@@ -167,7 +166,6 @@ class ViPERManager @Inject constructor(
 
     suspend fun removeSession(packageName: String, sessionId: Int) {
         sessionMutex.withLock {
-            waitForReady()
             sessionDao.delete(sessionId)
             val session = sessions.find { it.id == sessionId }
             if (session != null) {

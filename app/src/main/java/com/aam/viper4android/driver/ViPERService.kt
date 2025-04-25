@@ -81,7 +81,6 @@ class ViPERService : LifecycleService() {
         }
 
         lifecycleScope.launch {
-            viperManager.waitForReady()
             viperManager.currentSessions.collect { sessions ->
                 // todo: stop service when started without an intent that modifies the sessions
                 if (sessions.isEmpty()) {
