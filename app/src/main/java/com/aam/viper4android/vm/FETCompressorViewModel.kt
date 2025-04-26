@@ -13,18 +13,9 @@ import javax.inject.Inject
 class FETCompressorViewModel @Inject constructor(
     private val viperManager: ViPERManager,
 ) : ViewModel() {
-    private val _enabled = MutableStateFlow(false)
-    val enabled = _enabled.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            viperManager.currentPreset.collect { preset ->
-                _enabled.value = preset.fetCompressor.enabled
-            }
-        }
-    }
+    val enabled = viperManager.fetCompressor.enabled
 
     fun setEnabled(enabled: Boolean) {
-        _enabled.value = enabled
+        viperManager.fetCompressor.setEnabled(enabled)
     }
 }

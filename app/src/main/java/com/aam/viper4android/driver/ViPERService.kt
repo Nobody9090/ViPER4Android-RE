@@ -21,6 +21,7 @@ import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -88,16 +89,7 @@ class ViPERService : LifecycleService() {
 
     private fun restoreSessions() {
         lifecycleScope.launch {
-            if (viperSettings.legacyMode.value) {
-                Timber.d("restoreSessions: Legacy mode is enabled, not restoring sessions")
-                viperManager.addSession(0, packageName)
-            } else {
-                Timber.d("restoreSessions: Restoring sessions from database")
-                withContext(Dispatchers.IO) { sessionDao.getAll(bootCount) }.forEach { session ->
-                    Timber.d("restoreSessions: Restoring session ${session.id} for package ${session.packageName}")
-                    viperManager.addSession(session.id, session.packageName)
-                }
-            }
+            setLegacyModeLocked(viperSettings.legacyMode.value)
             sessionMutex.unlock()
         }
     }
@@ -105,46 +97,58 @@ class ViPERService : LifecycleService() {
     private fun addSession(id: Int, packageName: String?, startId: Int) {
         lifecycleScope.launch {
             sessionMutex.withLock {
-                if (id != -1) {
-                    withContext(Dispatchers.IO) {
-                        sessionDao.insert(PersistedSession(
-                            id = id,
-                            packageName = packageName,
-                            bootCount = bootCount
-                        ))
-                    }
-                    if (!viperSettings.legacyMode.value) {
-                        Timber.d("addSession: Adding session $id for package $packageName")
-                        viperManager.addSession(id, packageName)
-                    } else {
-                        Timber.d("addSession: Legacy mode is enabled, not adding session $id for package $packageName")
-                    }
-                }
-
-                if (!viperManager.hasSessions()) {
-                    Timber.d("addSession: No sessions are active, stopping service (startId: $startId)")
-                    stopSelf(startId)
-                }
+                addSessionLocked(id, packageName, startId)
             }
+        }
+    }
+
+    private suspend fun addSessionLocked(id: Int, packageName: String?, startId: Int) {
+        if (id != -1) {
+            withContext(Dispatchers.IO) {
+                sessionDao.insert(PersistedSession(
+                    id = id,
+                    packageName = packageName,
+                    bootCount = bootCount
+                ))
+            }
+            if (!viperSettings.legacyMode.value) {
+                Timber.d("addSession: Adding session $id for package $packageName")
+                viperManager.addSession(id, packageName)
+            } else {
+                Timber.d("addSession: Legacy mode is enabled, not adding session $id for package $packageName")
+            }
+        }
+
+        if (!viperManager.hasSessions()) {
+            Timber.d("addSession: No sessions are active, stopping service (startId: $startId)")
+            stopSelf(startId)
         }
     }
 
     private fun removeSession(id: Int, packageName: String?, startId: Int) {
         lifecycleScope.launch {
             sessionMutex.withLock {
-                if (id != -1) {
-                    withContext(Dispatchers.IO) {
-                        sessionDao.delete(id)
-                    }
-                    Timber.d("removeSession: Removing session $id for package $packageName")
-                    viperManager.removeSession(id, packageName)
-                }
-
-                if (!viperManager.hasSessions()) {
-                    Timber.d("removeSession: No sessions are active, stopping service (startId: $startId)")
-                    stopSelf(startId)
-                }
+                removeSessionLocked(id, packageName, startId)
             }
+        }
+    }
+
+    private suspend fun removeSessionLocked(id: Int, packageName: String?, startId: Int) {
+        if (id != -1) {
+            withContext(Dispatchers.IO) {
+                sessionDao.delete(id)
+            }
+            if (!viperSettings.legacyMode.value) {
+                Timber.d("removeSession: Removing session $id for package $packageName")
+                viperManager.removeSession(id, packageName)
+            } else {
+                Timber.d("removeSession: Legacy mode is enabled, not removing session $id for package $packageName")
+            }
+        }
+
+        if (!viperManager.hasSessions()) {
+            Timber.d("removeSession: No sessions are active, stopping service (startId: $startId)")
+            stopSelf(startId)
         }
     }
 
@@ -159,10 +163,26 @@ class ViPERService : LifecycleService() {
         }
     }
 
+    private suspend fun setLegacyModeLocked(legacyMode: Boolean) {
+        viperManager.removeAllSessions()
+        if (legacyMode) {
+            Timber.d("setLegacyModeLocked: Legacy mode is enabled")
+            viperManager.addSession(0, packageName)
+        } else {
+            Timber.d("setLegacyModeLocked: Restoring sessions from database")
+            withContext(Dispatchers.IO) { sessionDao.getAll(bootCount) }.forEach { session ->
+                Timber.d("setLegacyModeLocked: Restoring session ${session.id} for package ${session.packageName}")
+                viperManager.addSession(session.id, session.packageName)
+            }
+        }
+    }
+
     private fun collectFlows() {
         lifecycleScope.launch {
-            viperSettings.legacyMode.collect { legacyMode ->
-                // TODO: Handle legacy mode changes
+            viperSettings.legacyMode.drop(1).collect { legacyMode ->
+                sessionMutex.withLock {
+                    setLegacyModeLocked(legacyMode)
+                }
             }
         }
 
@@ -176,6 +196,7 @@ class ViPERService : LifecycleService() {
             }
         }
     }
+
 
     private fun updateNotification() {
         try {

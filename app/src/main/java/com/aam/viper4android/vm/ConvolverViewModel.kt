@@ -13,18 +13,9 @@ import javax.inject.Inject
 class ConvolverViewModel @Inject constructor(
     private val viperManager: ViPERManager,
 ) : ViewModel() {
-    private val _enabled = MutableStateFlow(false)
-    val enabled = _enabled.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            viperManager.currentPreset.collect { preset ->
-                _enabled.value = preset.convolver.enabled
-            }
-        }
-    }
+    val enabled = viperManager.convolver.enabled
 
     fun setEnabled(enabled: Boolean) {
-        _enabled.value = enabled
+        viperManager.convolver.setEnabled(enabled)
     }
 }

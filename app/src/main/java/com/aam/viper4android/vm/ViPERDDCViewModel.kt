@@ -13,18 +13,9 @@ import javax.inject.Inject
 class ViPERDDCViewModel @Inject constructor(
     private val viperManager: ViPERManager,
 ) : ViewModel() {
-    private val _enabled = MutableStateFlow(false)
-    val enabled = _enabled.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            viperManager.currentPreset.collect { preset ->
-                _enabled.value = preset.viperDdc.enabled
-            }
-        }
-    }
+    val enabled = viperManager.viperDdc.enabled
 
     fun setEnabled(enabled: Boolean) {
-        _enabled.value = enabled
+        viperManager.viperDdc.setEnabled(enabled)
     }
 }

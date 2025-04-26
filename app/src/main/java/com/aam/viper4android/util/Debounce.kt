@@ -6,15 +6,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // A utility function to debounce any function call
-fun debounce(
+fun CoroutineScope.debounce(
     delayMillis: Long, // Delay in ms
-    scope: CoroutineScope, // CoroutineScope in which to launch the debounce
-    action: () -> Unit // The action to debounce
+    action: suspend () -> Unit // The action to debounce
 ): () -> Unit {
     var debounceJob: Job? = null
     return {
         debounceJob?.cancel() // Cancel the previous job if it's still active
-        debounceJob = scope.launch {
+        debounceJob = launch {
             delay(delayMillis) // Wait for the delay
             action() // Execute the action
         }

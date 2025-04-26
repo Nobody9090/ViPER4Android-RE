@@ -78,4 +78,16 @@
     <string name="field_surround_mid_image_strength">Mid image strength</string>
     <string name="fet_compressor">FET compressor</string>
     <string name="convolver">Convolver</string>
+    <string name="back">Back</string>
+    <string name="settings_legacy_mode_description">Attaches to system-wide session \"0\" (deprecated).</string>
+    <string name="processing">Processing</string>
+    <string name="background_limits">Background limits</string>
+    <string name="keep_service_always_running">Keep service always running</string>
+    <string name="settings_keep_service_always_running_description">Avoids foreground service start issues on some devices.</string>
+    <string name="about">About</string>
+    <string name="app_design">App design</string>
+    <string name="app_programming">App programming</string>
+    <string name="driver_reverse_engineering">Driver reverse engineering</string>
+    <string name="special_thanks">Special thanks</string>
+    <string name="source_code">Source code</string>
 </resources>
