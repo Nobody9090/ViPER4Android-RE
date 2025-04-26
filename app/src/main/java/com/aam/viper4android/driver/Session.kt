@@ -8,6 +8,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.math.roundToInt
 
 data class Session(
@@ -140,7 +141,11 @@ data class Session(
     ) {
         scope.launch(Dispatchers.IO) {
             flow.collect {
-                setter(it)
+                try {
+                    setter(it)
+                } catch (e: Exception) {
+                    Timber.e(e)
+                }
             }
         }
     }

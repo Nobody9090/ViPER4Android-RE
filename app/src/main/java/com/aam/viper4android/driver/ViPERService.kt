@@ -34,12 +34,14 @@ class ViPERService : LifecycleService() {
     @Inject lateinit var viperSettings: ViPERSettings
     @Inject lateinit var sessionDao: SessionDao
 
-    private val bootCount: Int = getBootCount(contentResolver)
+    private var bootCount: Int = 0
 
     private var sessionMutex = Mutex(locked = true)
 
     override fun onCreate() {
         super.onCreate()
+        bootCount = getBootCount(contentResolver)
+
         deleteObsoleteSessions()
         restoreSessions()
         collectFlows()
@@ -55,7 +57,6 @@ class ViPERService : LifecycleService() {
                 getNotification(),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
             )
-            Timber.d("onStartCommand: Started foreground service")
         } catch (e: Exception) {
             Timber.e(e, "onStartCommand: Failed to start foreground service")
         }
@@ -135,6 +136,7 @@ class ViPERService : LifecycleService() {
                     withContext(Dispatchers.IO) {
                         sessionDao.delete(id)
                     }
+                    Timber.d("removeSession: Removing session $id for package $packageName")
                     viperManager.removeSession(id, packageName)
                 }
 
