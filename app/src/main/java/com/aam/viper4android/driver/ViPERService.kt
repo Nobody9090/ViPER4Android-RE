@@ -217,16 +217,8 @@ class ViPERService : LifecycleService() {
     private fun getSessionAppLabelsString(): String {
         val sessions = viperManager.currentSessions.value
         return sessions.map {
-            getSessionAppLabelString(it.packageName)
+            it.getApplicationLabel(this)
         }.distinct().joinToString().ifEmpty { getString(R.string.no_active_sessions) }
-    }
-
-    private fun getSessionAppLabelString(packageName: String?): String {
-        return if (packageName == null) {
-            "Unknown"
-        } else {
-            AndroidUtils.getApplicationLabel(this, packageName)
-        }
     }
 
     companion object {

@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aam.viper4android.driver.ViPERManager
 import com.aam.viper4android.ui.model.StatusSession
-import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +21,7 @@ class StatusViewModel @Inject constructor(
         sessions.map { session ->
             StatusSession(
                 session = session,
-                name = if (session.id != 0 && session.packageName == context.packageName) "Unknown" else AndroidUtils.getApplicationLabel(context, session.packageName),
+                name = session.getApplicationLabel(context),
             )
         }
     }.stateIn(

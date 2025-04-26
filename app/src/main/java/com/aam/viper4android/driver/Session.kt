@@ -1,5 +1,7 @@
 package com.aam.viper4android.driver
 
+import android.content.Context
+import com.aam.viper4android.util.AndroidUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -146,5 +148,13 @@ data class Session(
     fun release() {
         scope.cancel()
         effect.audioEffect.release()
+    }
+
+    fun getApplicationLabel(context: Context): String {
+        return if (packageName == null) {
+            "Unknown"
+        } else {
+            AndroidUtils.getApplicationLabel(context, packageName)
+        }
     }
 }
