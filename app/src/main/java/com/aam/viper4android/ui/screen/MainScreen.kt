@@ -70,10 +70,6 @@ fun MainScreen(
     val enabled by mainViewModel.enabled.collectAsStateWithLifecycle()
 
     LaunchedEffect(context) {
-        if (!ViPEREffect.isAvailable) {
-            Timber.e("onCreate: ViPER4Android is not available")
-            return@LaunchedEffect
-        }
         Intent(context, ViPERService::class.java).let {
             try {
                 ContextCompat.startForegroundService(context, it)
@@ -84,8 +80,8 @@ fun MainScreen(
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
-    var openStatusDialog by rememberSaveable { mutableStateOf(false) }
     var openPresetDialog by rememberSaveable { mutableStateOf(false) }
+    var openStatusDialog by rememberSaveable { mutableStateOf(false) }
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
@@ -124,13 +120,15 @@ fun MainScreen(
                     Crossfade(
                         targetState = enabled,
                     ) { enabled ->
-                        Text(
-                            text = if (enabled) {
-                                stringResource(R.string.main_enabled)
-                            } else {
-                                stringResource(R.string.main_disabled)
-                            }
-                        )
+                        if (enabled) {
+                            Text(
+                                text = stringResource(R.string.main_enabled)
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(R.string.main_disabled)
+                            )
+                        }
                     }
                 },
                 checked = enabled,
@@ -164,12 +162,12 @@ fun MainScreen(
         }
     }
 
-    if (openStatusDialog) {
-        StatusDialog(onDismissRequest = { openStatusDialog = false })
-    }
-
     if (openPresetDialog) {
         PresetDialog(onDismissRequest = { openPresetDialog = false })
+    }
+
+    if (openStatusDialog) {
+        StatusDialog(onDismissRequest = { openStatusDialog = false })
     }
 }
 

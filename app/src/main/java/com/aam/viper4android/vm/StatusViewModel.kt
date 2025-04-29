@@ -26,14 +26,18 @@ class StatusViewModel @Inject constructor(
         }
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
+        started = SharingStarted.WhileSubscribed(
+            stopTimeoutMillis = 5000L
+        ),
         initialValue = emptyList(),
     )
 
     fun getVersionString(versionCode: UInt): String {
-        return when (versionCode) {
+        val versionName = when (versionCode) {
             20240314u -> "0.7.0"
             else -> "Unknown"
-        } + " ($versionCode)"
+        }
+
+        return "$versionName ($versionCode)"
     }
 }

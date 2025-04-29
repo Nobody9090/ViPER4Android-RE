@@ -14,7 +14,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,11 +54,12 @@ fun StatusDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(sessions) { session ->
-                        val status by remember {
-                            derivedStateOf {
-                                session.session.effect.status
-                            }
-                        }
+                        val status = remember(session) { session.session.effect.status }
+                        var version by remember(status) { mutableStateOf(status.getVersion()) }
+                        var architecture by remember(status) { mutableStateOf(status.getArchitecture()) }
+                        var enabled by remember(status) { mutableStateOf(status.getEnabled()) }
+                        var frameCount by remember(status) { mutableStateOf(status.getFrameCount()) }
+                        var disableReason by remember(status) { mutableStateOf(status.getDisableReason()) }
 
                         key(session.session.id) {
                             Column {
@@ -68,26 +71,26 @@ fun StatusDialog(
                                 )
                                 Text(text = stringResource(
                                     R.string.version,
-                                    statusViewModel.getVersionString(status.getVersion())
+                                    statusViewModel.getVersionString(version)
                                 ))
                                 Text(text = stringResource(
                                     R.string.architecture,
-                                    Architecture.fromValue(status.getArchitecture())
+                                    Architecture.fromValue(architecture)
                                 ))
                                 Text(text = stringResource(
                                     R.string.enabled,
-                                    if (status.getEnabled())
+                                    if (enabled)
                                         stringResource(R.string.yes)
                                     else
                                         stringResource(R.string.no)
                                 ))
                                 Text(text = stringResource(
                                     R.string.frame_count,
-                                    status.getFrameCount()
+                                    frameCount
                                 ))
                                 Text(text = stringResource(
                                     R.string.disable_reason,
-                                    DisableReason.fromValue(status.getDisableReason())
+                                    DisableReason.fromValue(disableReason)
                                 ))
                             }
                         }
