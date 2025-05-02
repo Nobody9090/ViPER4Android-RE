@@ -17,10 +17,8 @@ import com.aam.viper4android.ktx.getBootCount
 import com.aam.viper4android.persistence.SessionDao
 import com.aam.viper4android.persistence.ViPERSettings
 import com.aam.viper4android.persistence.model.PersistedSession
-import com.aam.viper4android.util.AndroidUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -62,6 +60,8 @@ class ViPERService : LifecycleService() {
             Timber.e(e, "onStartCommand: Failed to start foreground service")
         }
 
+        Timber.d("onStartCommand: Intent: $intent")
+
         when (intent?.action) {
             AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION -> {
                 val sessionId = intent.getIntExtra(AudioEffect.EXTRA_AUDIO_SESSION, -1)
@@ -95,6 +95,7 @@ class ViPERService : LifecycleService() {
     }
 
     private fun addSession(id: Int, packageName: String?, startId: Int) {
+        Timber.d("addSession: Adding session $id for package $packageName")
         lifecycleScope.launch {
             sessionMutex.withLock {
                 addSessionLocked(id, packageName, startId)
@@ -103,6 +104,7 @@ class ViPERService : LifecycleService() {
     }
 
     private suspend fun addSessionLocked(id: Int, packageName: String?, startId: Int) {
+        Timber.d("addSessionLocked: Adding session $id for package $packageName")
         if (id != -1) {
             withContext(Dispatchers.IO) {
                 sessionDao.insert(PersistedSession(
@@ -112,10 +114,9 @@ class ViPERService : LifecycleService() {
                 ))
             }
             if (!viperSettings.legacyMode.value) {
-                Timber.d("addSession: Adding session $id for package $packageName")
                 viperManager.addSession(id, packageName)
             } else {
-                Timber.d("addSession: Legacy mode is enabled, not adding session $id for package $packageName")
+                Timber.d("addSessionLocked: Legacy mode is enabled, not adding session $id for package $packageName")
             }
         }
 
@@ -126,6 +127,7 @@ class ViPERService : LifecycleService() {
     }
 
     private fun removeSession(id: Int, packageName: String?, startId: Int) {
+        Timber.d("removeSession: Removing session $id for package $packageName")
         lifecycleScope.launch {
             sessionMutex.withLock {
                 removeSessionLocked(id, packageName, startId)
@@ -134,20 +136,20 @@ class ViPERService : LifecycleService() {
     }
 
     private suspend fun removeSessionLocked(id: Int, packageName: String?, startId: Int) {
+        Timber.d("removeSessionLocked: Removing session $id for package $packageName")
         if (id != -1) {
             withContext(Dispatchers.IO) {
                 sessionDao.delete(id)
             }
             if (!viperSettings.legacyMode.value) {
-                Timber.d("removeSession: Removing session $id for package $packageName")
                 viperManager.removeSession(id, packageName)
             } else {
-                Timber.d("removeSession: Legacy mode is enabled, not removing session $id for package $packageName")
+                Timber.d("removeSessionLocked: Legacy mode is enabled, not removing session $id for package $packageName")
             }
         }
 
         if (!viperManager.hasSessions()) {
-            Timber.d("removeSession: No sessions are active, stopping service (startId: $startId)")
+            Timber.d("removeSessionLocked: No sessions are active, stopping service (startId: $startId)")
             stopSelf(startId)
         }
     }
@@ -183,44 +185,71 @@ class ViPERService : LifecycleService() {
                 sessionMutex.withLock {
                     setLegacyModeLocked(legacyMode)
                 }
+                Timber.d("collectFlows: legacyMode: updateNotification (legacyMode: $legacyMode)")
+                updateNotification(
+                    legacyMode = legacyMode
+                )
             }
         }
 
         lifecycleScope.launch {
-            combine(
-                viperManager.currentRoute,
-                viperSettings.legacyMode,
-                viperManager.currentSessions
-            ) { currentRoute, legacyMode, sessions ->
-                updateNotification()
+            viperManager.currentRoute.drop(1).collect { route ->
+                Timber.d("collectFlows: route: updateNotification (route: $route)")
+                updateNotification(
+                    route = route
+                )
+            }
+        }
+
+        lifecycleScope.launch {
+            viperManager.currentSessions.drop(1).collect { sessions ->
+                Timber.d("collectFlows: sessions: updateNotification (sessions: $sessions)")
+                updateNotification(
+                    sessions = sessions,
+                )
             }
         }
     }
 
 
-    private fun updateNotification() {
+    private fun updateNotification(
+        route: ViPERRoute = viperManager.currentRoute.value,
+        legacyMode: Boolean = viperSettings.legacyMode.value,
+        sessions: List<Session> = viperManager.currentSessions.value,
+    ) {
         try {
+            val notification = getNotification(
+                route = route,
+                legacyMode = legacyMode,
+                sessions = sessions
+            )
+
             NotificationManagerCompat.from(this)
-                .notify(SERVICE_NOTIFICATION_ID, getNotification())
+                .notify(SERVICE_NOTIFICATION_ID, notification)
         } catch (e: Exception) {
             Timber.e(e, "updateNotification: Failed to update notification")
         }
     }
 
-    private fun getNotification(): Notification {
+    private fun getNotification(
+        route: ViPERRoute = viperManager.currentRoute.value,
+        legacyMode: Boolean = viperSettings.legacyMode.value,
+        sessions: List<Session> = viperManager.currentSessions.value,
+    ): Notification {
+        Timber.d("getNotification: route: $route, legacyMode: $legacyMode, sessions: $sessions")
+
         val pendingIntent = packageManager.getLaunchIntentForPackage(packageName).let {
             PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
         }
 
-        val title = getString(
-            R.string.device_connected,
-            viperManager.currentRoute.value.getName()
-        )
+        val title = getString(R.string.device_connected, route.getName())
 
-        val text = if (viperSettings.legacyMode.value)
+        val text = if (legacyMode)
             getString(R.string.legacy_mode)
         else
-            getSessionAppLabelsString()
+            getSessionAppLabelsString(
+                sessions = sessions
+            )
 
         return NotificationCompat.Builder(this, ViPERApplication.SERVICES_CHANNEL_ID)
             .setContentTitle(title)
@@ -237,8 +266,9 @@ class ViPERService : LifecycleService() {
             .build()
     }
 
-    private fun getSessionAppLabelsString(): String {
-        val sessions = viperManager.currentSessions.value
+    private fun getSessionAppLabelsString(
+        sessions: List<Session>,
+    ): String {
         return sessions.map {
             it.getApplicationLabel(this)
         }.distinct().joinToString().ifEmpty { getString(R.string.no_active_sessions) }

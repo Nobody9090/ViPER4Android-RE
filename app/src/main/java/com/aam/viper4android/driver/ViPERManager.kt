@@ -110,19 +110,24 @@ class ViPERManager @Inject constructor(
     fun removeSession(sessionId: Int, packageName: String?) {
         val session = _currentSessions.value.find { it.id == sessionId }
         if (session == null) {
-            Timber.d("removeSession: Session $sessionId not found, skipping")
+            Timber.d("removeSession: Session $sessionId for package $packageName not found, skipping")
             return
         }
-        session.release()
         _currentSessions.value = _currentSessions.value.filter { it != session }
+        session.release()
     }
 
     fun removeAllSessions() {
         Timber.d("removeAllSessions: Removing all sessions")
-        _currentSessions.value.forEach { session ->
-            session.release()
-        }
+        val sessions = _currentSessions.value
         _currentSessions.value = emptyList()
+        sessions.forEach { session ->
+            try {
+                session.release()
+            } catch (e: Exception) {
+                Timber.e(e, "removeAllSessions: Failed to release session")
+            }
+        }
     }
 
     fun hasSessions(): Boolean {

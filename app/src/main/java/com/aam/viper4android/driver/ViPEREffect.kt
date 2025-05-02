@@ -25,7 +25,18 @@ import java.util.UUID
 class ViPEREffect(sessionId: Int) {
     val audioEffect = AudioEffectKtx(VIPER_TYPE_UUID, VIPER_UUID, 0, sessionId)
 
-    val status = Status()
+    var enabled: Boolean
+        get() = try {
+            audioEffect.enabled
+        } catch (e: IllegalStateException) {
+            // java.lang.IllegalStateException: getEnabled() called on uninitialized AudioEffect.
+            false
+        }
+        set(value) = try {
+            audioEffect.enabled = value
+        } catch (e: IllegalStateException) {
+            // java.lang.IllegalStateException: setEnabled() called on uninitialized AudioEffect.
+        }
     val masterLimiter = MasterLimiter()
 //    val playbackGainControl = PlaybackGainControl()
 //    val fetCompressor = FETCompressor()
@@ -46,15 +57,6 @@ class ViPEREffect(sessionId: Int) {
     val speakerOptimization = SpeakerOptimization()
 
     fun reset() = audioEffect.setBooleanParameter(PARAM_SET_RESET, true)
-
-    inner class Status {
-        fun getEnabled() = audioEffect.getBooleanParameter(PARAM_GET_ENABLED)
-        fun getFrameCount() = audioEffect.getULongParameter(PARAM_GET_FRAME_COUNT)
-        fun getVersion() = audioEffect.getUIntParameter(PARAM_GET_VERSION)
-        fun getDisableReason() = audioEffect.getIntParameter(PARAM_GET_DISABLE_REASON)
-        fun getConfig() = audioEffect.getByteArrayParameter(PARAM_GET_CONFIG, 40)
-        fun getArchitecture() = audioEffect.getUByteParameter(PARAM_GET_ARCHITECTURE)
-    }
 
     inner class MasterLimiter {
         @OptIn(ExperimentalUnsignedTypes::class)
@@ -232,14 +234,6 @@ class ViPEREffect(sessionId: Int) {
                 false
             }
         }
-
-        /* Get parameter */
-        private const val PARAM_GET_ENABLED = 0u
-        private const val PARAM_GET_FRAME_COUNT = 1u
-        private const val PARAM_GET_VERSION = 2u
-        private const val PARAM_GET_DISABLE_REASON = 3u
-        private const val PARAM_GET_CONFIG = 4u
-        private const val PARAM_GET_ARCHITECTURE = 5u
 
         /* Set parameter */
         private const val PARAM_SET_RESET = 0u

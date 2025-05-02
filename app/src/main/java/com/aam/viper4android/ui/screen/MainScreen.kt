@@ -38,10 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aam.viper4android.PresetDialog
+import com.aam.viper4android.ui.dialog.PresetDialog
 import com.aam.viper4android.R
-import com.aam.viper4android.StatusDialog
-import com.aam.viper4android.driver.ViPEREffect
+import com.aam.viper4android.ui.dialog.StatusDialog
 import com.aam.viper4android.driver.ViPERService
 import com.aam.viper4android.ui.component.SwitchBar
 import com.aam.viper4android.ui.effect.AnalogXEffect

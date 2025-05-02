@@ -1,4 +1,4 @@
-package com.aam.viper4android
+package com.aam.viper4android.ui.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
