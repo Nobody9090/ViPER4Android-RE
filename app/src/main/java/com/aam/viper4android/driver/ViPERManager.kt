@@ -1,8 +1,9 @@
 package com.aam.viper4android.driver
 
 import android.content.Context
-import android.media.MediaRouter
-import com.aam.viper4android.ktx.getSelectedLiveAudioRoute
+import androidx.mediarouter.media.MediaControlIntent
+import androidx.mediarouter.media.MediaRouteSelector
+import androidx.mediarouter.media.MediaRouter
 import com.aam.viper4android.persistence.PresetsDao
 import com.aam.viper4android.persistence.model.PersistedPreset
 import com.aam.viper4android.util.debounce
@@ -10,7 +11,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -26,9 +26,9 @@ class ViPERManager @Inject constructor(
     private val presetDao: PresetsDao,
 ) {
     private val scope = CoroutineScope(Dispatchers.Main.immediate)
-    private val mediaRouter = context.getSystemService(MediaRouter::class.java)
+    private val mediaRouter = MediaRouter.getInstance(context)
 
-    private var _currentRoute = MutableStateFlow(ViPERRoute.fromRouteInfo(mediaRouter.getSelectedLiveAudioRoute()))
+    private var _currentRoute = MutableStateFlow(ViPERRoute.fromRouteInfo(mediaRouter.selectedRoute))
     val currentRoute = _currentRoute.asStateFlow()
 
     private var _currentSessions = MutableStateFlow<List<Session>>(emptyList())
@@ -65,19 +65,25 @@ class ViPERManager @Inject constructor(
     private fun observeMediaRouter() {
         scope.launch {
             callbackFlow {
-                val callback = object : MediaRouter.SimpleCallback() {
+                val callback = object : MediaRouter.Callback() {
                     override fun onRouteSelected(
                         router: MediaRouter,
-                        type: Int,
-                        info: MediaRouter.RouteInfo
+                        route: MediaRouter.RouteInfo,
+                        reason: Int
                     ) {
-                        trySend(info)
+                        trySend(route)
                     }
                 }
-                mediaRouter.addCallback(MediaRouter.ROUTE_TYPE_LIVE_AUDIO, callback)
+                mediaRouter.addCallback(
+                    MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
+                        .build(),
+                    callback
+                )
 
                 // Update the current route immediately
-                trySend(mediaRouter.getSelectedLiveAudioRoute())
+                trySend(mediaRouter.selectedRoute)
 
                 awaitClose {
                     mediaRouter.removeCallback(callback)

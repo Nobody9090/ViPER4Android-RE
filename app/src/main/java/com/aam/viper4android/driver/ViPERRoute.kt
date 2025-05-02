@@ -1,6 +1,6 @@
 package com.aam.viper4android.driver
 
-import android.media.MediaRouter
+import androidx.mediarouter.media.MediaRouter
 
 interface ViPERRoute {
     fun getId(): String
@@ -10,11 +10,19 @@ interface ViPERRoute {
         fun fromRouteInfo(route: MediaRouter.RouteInfo): ViPERRoute {
             return object : ViPERRoute {
                 override fun getId(): String {
-                    return route.name.toString()
+                    return route.id
                 }
 
                 override fun getName(): CharSequence {
-                    return route.name
+                    val name = route.name
+
+                    // Weird HyperOS behavior
+                    val annoyingText = "dontapplycevolume"
+                    return if (name.startsWith(annoyingText)) {
+                        name.substring(annoyingText.length)
+                    } else {
+                        name
+                    }
                 }
             }
         }
