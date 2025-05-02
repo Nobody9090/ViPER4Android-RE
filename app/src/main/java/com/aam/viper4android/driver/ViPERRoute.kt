@@ -16,7 +16,10 @@ interface ViPERRoute {
                 override fun getName(): CharSequence {
                     val name = route.name
 
-                    // Weird HyperOS behavior
+                    // Weird HyperOS behavior with A2DP devices
+                    // Spotify does not seem to have this issue, but I could not find
+                    // why. Their code does not contain this word, and the appear to be
+                    // using the same MediaRouter API.
                     val annoyingText = "dontapplycevolume"
                     return if (name.startsWith(annoyingText)) {
                         name.substring(annoyingText.length)
