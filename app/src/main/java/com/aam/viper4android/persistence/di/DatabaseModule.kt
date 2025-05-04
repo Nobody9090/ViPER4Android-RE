@@ -16,8 +16,7 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun provideViperDatabase(@ApplicationContext context: Context): ViPERDatabase {
-        return Room.databaseBuilder(context, ViPERDatabase::class.java, "ViPERDatabase")
-            .build()
+        return ViPERDatabase.getInstance(context)
     }
 
     @Provides

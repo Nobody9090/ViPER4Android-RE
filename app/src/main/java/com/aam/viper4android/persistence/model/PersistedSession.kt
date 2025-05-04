@@ -2,7 +2,7 @@ package com.aam.viper4android.persistence.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Index
+import java.time.Instant
 
 @Entity(
     tableName = "sessions",
@@ -11,4 +11,5 @@ data class PersistedSession(
     @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "package_name") val packageName: String?,
     @ColumnInfo(name = "boot_count") val bootCount: Int,
+    @ColumnInfo(name = "started_at") val startedAt: Instant,
 )

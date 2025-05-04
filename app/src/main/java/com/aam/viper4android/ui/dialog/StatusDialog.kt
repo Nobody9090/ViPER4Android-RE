@@ -3,9 +3,14 @@ package com.aam.viper4android.ui.dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -26,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
+import com.aam.viper4android.ui.component.ElapsedTimeSince
 import com.aam.viper4android.vm.StatusViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -56,35 +62,96 @@ fun StatusDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(sessions) { session ->
-                        key(session.session.id) {
+                        key(session.id) {
+                            var enabled by remember(session) {
+                                mutableStateOf(session.enabled)
+                            }
+                            var openCloseSessionDialog by remember { mutableStateOf(false) }
+
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Column(
                                     modifier = Modifier.weight(1f),
                                 ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = session.name,
+                                            modifier = Modifier.weight(1f, fill = false),
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 1,
+                                            style = MaterialTheme.typography.labelLarge,
+                                        )
+                                        ElapsedTimeSince(
+                                            startInstant = session.startedAt,
+                                        ) { elapsedTime ->
+                                            Text(
+                                                text = " · $elapsedTime",
+                                                maxLines = 1,
+                                                style = MaterialTheme.typography.labelLarge,
+                                            )
+                                        }
+                                    }
                                     Text(
-                                        text = session.name,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1,
-                                        style = MaterialTheme.typography.labelLarge,
-                                    )
-                                    Text(
-                                        text = "Session ID: ${session.session.id}",
+                                        text = "Session ID: ${session.id}",
                                         overflow = TextOverflow.Ellipsis,
                                         maxLines = 1,
                                         style = MaterialTheme.typography.bodyMedium,
                                     )
                                 }
-                                var enabled by remember(session) {
-                                    mutableStateOf(session.session.effect.enabled)
+                                IconButton(
+                                    onClick = {
+                                        openCloseSessionDialog = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = "Close session",
+                                    )
                                 }
                                 Switch(
                                     checked = enabled,
                                     onCheckedChange = {
                                         enabled = it
-                                        session.session.effect.enabled = it
+                                        session.enabled = it
                                     },
+                                )
+                            }
+
+                            if (openCloseSessionDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { openCloseSessionDialog = false },
+                                    icon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Delete,
+                                            contentDescription = "Close session",
+                                        )
+                                    },
+                                    title = { Text(text = "Close session ${session.id}") },
+                                    text = {
+                                        Text(
+                                            text = "Do you want to close the session from ${session.name}? This action cannot be undone.",
+                                        )
+                                    },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = {
+                                                statusViewModel.closeSession(session)
+                                                openCloseSessionDialog = false
+                                            }
+                                        ) {
+                                            Text("Confirm")
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(
+                                            onClick = { openCloseSessionDialog = false }
+                                        ) {
+                                            Text("Cancel")
+                                        }
+                                    }
                                 )
                             }
                         }

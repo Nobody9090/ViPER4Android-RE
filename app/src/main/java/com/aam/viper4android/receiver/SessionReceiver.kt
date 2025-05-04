@@ -27,7 +27,6 @@ class SessionReceiver : BroadcastReceiver() {
         var packageName = intent.getStringExtra(AudioEffect.EXTRA_PACKAGE_NAME)
         if (packageName == null) {
             Timber.w("onReceive: Missing packageName for session $sessionId")
-            packageName = context.packageName // Use a generic package name
         }
 
         Intent(context, ViPERService::class.java)

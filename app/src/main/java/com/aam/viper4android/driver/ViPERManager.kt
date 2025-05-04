@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -99,13 +100,13 @@ class ViPERManager @Inject constructor(
         }
     }
 
-    fun addSession(sessionId: Int, packageName: String?) {
+    fun addSession(sessionId: Int, packageName: String?, startedAt: Instant) {
         if (_currentSessions.value.any { it.id == sessionId }) {
             Timber.d("addSession: Session $sessionId already exists, skipping")
             return
         }
         val session = try {
-            Session(this, packageName, sessionId)
+            Session(this, packageName, sessionId, startedAt)
         } catch (e: Exception) {
             Timber.e(e, "addSession: Failed to create session")
             return

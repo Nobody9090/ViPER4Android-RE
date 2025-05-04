@@ -9,12 +9,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.Instant
 import kotlin.math.roundToInt
 
 data class Session(
     private val viperManager: ViPERManager,
     val packageName: String?,
     val id: Int,
+    val startedAt: Instant,
 ) {
     val effect = ViPEREffect(id).also {
         if (!it.audioEffect.hasControl()) {

@@ -25,6 +25,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.time.Instant
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -106,15 +107,17 @@ class ViPERService : LifecycleService() {
     private suspend fun addSessionLocked(id: Int, packageName: String?, startId: Int) {
         Timber.d("addSessionLocked: Adding session $id for package $packageName")
         if (id != -1) {
+            val now = Instant.now()
             withContext(Dispatchers.IO) {
                 sessionDao.insert(PersistedSession(
                     id = id,
                     packageName = packageName,
-                    bootCount = bootCount
+                    bootCount = bootCount,
+                    startedAt = now,
                 ))
             }
             if (!viperSettings.legacyMode.value) {
-                viperManager.addSession(id, packageName)
+                viperManager.addSession(id, packageName, now)
             } else {
                 Timber.d("addSessionLocked: Legacy mode is enabled, not adding session $id for package $packageName")
             }
@@ -169,12 +172,12 @@ class ViPERService : LifecycleService() {
         viperManager.removeAllSessions()
         if (legacyMode) {
             Timber.d("setLegacyModeLocked: Legacy mode is enabled")
-            viperManager.addSession(0, packageName)
+            viperManager.addSession(0, packageName, Instant.now())
         } else {
             Timber.d("setLegacyModeLocked: Restoring sessions from database")
             withContext(Dispatchers.IO) { sessionDao.getAll(bootCount) }.forEach { session ->
                 Timber.d("setLegacyModeLocked: Restoring session ${session.id} for package ${session.packageName}")
-                viperManager.addSession(session.id, session.packageName)
+                viperManager.addSession(session.id, session.packageName, session.startedAt)
             }
         }
     }

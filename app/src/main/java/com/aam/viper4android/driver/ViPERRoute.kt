@@ -18,7 +18,7 @@ interface ViPERRoute {
 
                     // Weird HyperOS behavior with A2DP devices
                     // Spotify does not seem to have this issue, but I could not find
-                    // why. Their code does not contain this word, and the appear to be
+                    // why. Their code does not contain this word, and they appear to be
                     // using the same MediaRouter API.
                     val annoyingText = "dontapplycevolume"
                     return if (name.startsWith(annoyingText)) {
