@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,80 +81,83 @@ fun OnboardingScreen(
         hasNotificationPermission = it
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                start = 24.dp,
-                end = 24.dp,
-                top = 48.dp
-            ),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_viper),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
-        )
-
-        Text(
-            text = stringResource(R.string.onboarding_title),
-            fontSize = 45.sp,
-            fontWeight = FontWeight.Medium,
-            lineHeight = 45.sp
-        )
-
-        Text(
-            text = stringResource(R.string.onboarding_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
-        )
-
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(top = 8.dp)
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = 48.dp
+                ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OnboardingCard(
-                isDone = ViPEREffect.isAvailable,
-                title = stringResource(R.string.onboarding_driver_title),
-                description = stringResource(R.string.onboarding_driver_description),
-                onClick = {  }
+            Icon(
+                painter = painterResource(R.drawable.ic_viper),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
             )
 
-            OnboardingCard(
-                isDone = isIgnoringBatteryOptimizations,
-                title = stringResource(R.string.onboarding_battery_optimization_title),
-                description = stringResource(R.string.onboarding_battery_optimization_subtitle),
-                onClick = { batteryOptimizationsResultLauncher.launch(Unit) }
+            Text(
+                text = stringResource(R.string.onboarding_title),
+                fontSize = 45.sp,
+                fontWeight = FontWeight.Medium,
+                lineHeight = 45.sp
             )
 
-            OnboardingCard(
-                isDone = hasNotificationPermission,
-                title = stringResource(R.string.onboarding_notification_title),
-                description = stringResource(R.string.onboarding_notification_subtitle),
-                onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+            Text(
+                text = stringResource(R.string.onboarding_subtitle),
+                style = MaterialTheme.typography.bodyLarge,
             )
 
-            Spacer(Modifier.weight(1f))
-
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                contentAlignment = Alignment.CenterEnd
+                    .padding(top = 8.dp)
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(
-                    onClick = onOnboardingComplete,
-                    enabled = (ViPEREffect.isAvailable || BuildConfig.DEBUG) && isIgnoringBatteryOptimizations && hasNotificationPermission
+                OnboardingCard(
+                    isDone = ViPEREffect.isAvailable,
+                    title = stringResource(R.string.onboarding_driver_title),
+                    description = stringResource(R.string.onboarding_driver_description),
+                    onClick = {  }
+                )
+
+                OnboardingCard(
+                    isDone = isIgnoringBatteryOptimizations,
+                    title = stringResource(R.string.onboarding_battery_optimization_title),
+                    description = stringResource(R.string.onboarding_battery_optimization_subtitle),
+                    onClick = { batteryOptimizationsResultLauncher.launch(Unit) }
+                )
+
+                OnboardingCard(
+                    isDone = hasNotificationPermission,
+                    title = stringResource(R.string.onboarding_notification_title),
+                    description = stringResource(R.string.onboarding_notification_subtitle),
+                    onClick = { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) notificationPermissionResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    contentAlignment = Alignment.CenterEnd
                 ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                        contentDescription = null
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.onboarding_finish))
+                    Button(
+                        onClick = onOnboardingComplete,
+                        enabled = (ViPEREffect.isAvailable || BuildConfig.DEBUG) && isIgnoringBatteryOptimizations && hasNotificationPermission
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                            contentDescription = null
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(text = stringResource(R.string.onboarding_finish))
+                    }
                 }
             }
         }
