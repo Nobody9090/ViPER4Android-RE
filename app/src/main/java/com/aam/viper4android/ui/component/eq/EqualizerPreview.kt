@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.toSize
 import com.aam.viper4android.ui.util.MinPhaseIirCoeffs
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.exp
 import kotlin.math.log10
+import kotlin.math.pow
 import kotlin.math.sin
 
 private fun getBandSpacing(size: Size): Float {
@@ -121,11 +121,11 @@ fun EqualizerPreview(
             }
 
             val frequencyResponse = Path()
-            EqualizerHelper.calculateFrequencyResponse(
-                size = size,
-                gains = gains,
-                frequencyResponse = frequencyResponse
-            )
+//            EqualizerHelper.calculateFrequencyResponse(
+//                size = size,
+//                gains = gains,
+//                frequencyResponse = frequencyResponse
+//            )
 
             // gradient
             drawPath(
@@ -185,87 +185,70 @@ fun EqualizerPreview(
         }
     }
 
-    fun calculateFrequencyResponse2(
-        bands: MinPhaseIirCoeffs.Bands,
-        gains: List<Float>,
-        width: Int,
-        samplingRate: Int
-    ): FloatArray {
-        val coeffs = getCoeffs(bands, samplingRate)
-        val response = FloatArray(width)
+    fun xToFrequency(x: Int, width: Int, minFreq: Double, maxFreq: Double): Double {
+        val logMin = log10(minFreq)
+        val logMax = log10(maxFreq)
+        val logFreq = logMin + (x.toDouble() / (width - 1)) * (logMax - logMin)
+        return 10.0.pow(logFreq)
+    }
 
-        // For each pixel column (frequency point)
-        for (x in 0 until width) {
-            // Convert x position to frequency (logarithmic scale)
-            val freq = xToFrequency(x, width, samplingRate)
-            val omega = 2.0 * PI * freq / samplingRate
-
-            // Create complex exponential e^(-iω)
-            val expTerm = Complex(cos(omega), -sin(omega))
-            var magnitude = Complex(1.0, 0.0) // Start with unity gain
-
-            // Calculate combined response of all bands
-            coeffs.forEachIndexed { i, bandCoeffs ->
-                val gain = gains[i].toDouble()
-                val b0 = bandCoeffs[0]
-                val b1 = bandCoeffs[1]
-                val a1 = bandCoeffs[2]
-
-                // Transfer function for this band: H(z) = (b0 + b1*z^-1)/(1 - a1*z^-1)
-                val numerator = Complex(b0, 0.0) + Complex(b1, 0.0) * expTerm
-                val denominator = Complex(1.0, 0.0) - Complex(a1, 0.0) * expTerm
-                val bandResponse = numerator / denominator
-
-                // Apply gain: 1 + gain*(|H(z)| - 1)
-                val bandMagnitude = bandResponse.abs()
-                val scaledResponse = 1.0 + gain * (bandMagnitude - 1.0)
-
-                // Accumulate magnitude
-                magnitude = magnitude * Complex(scaledResponse, 0.0)
-            }
-
-            // Convert to decibels (20*log10)
-            response[x] = 20 * log10(magnitude.real).toFloat()
-        }
-
-        return response
+    fun frequencyToX(freq: Double, width: Int, samplingRate: Int): Int {
+        val minFreq = 20.0
+        val maxFreq = samplingRate / 2.0
+        val logMin = log10(minFreq)
+        val logMax = log10(maxFreq)
+        val logFreq = log10(freq)
+        return ((width - 1) * (logFreq - logMin) / (logMax - logMin)).toInt()
     }
 
     fun calculateFrequencyResponse(
-        bands: MinPhaseIirCoeffs.Bands,
+        frequencies: List<Double>,
         gains: List<Float>,
         width: Int,
         samplingRate: Int
     ): FloatArray {
-        val coeffs = getCoeffs(bands, samplingRate)
+        require(frequencies.size == gains.size) { "Frequencies and gains must have same size" }
+
         val response = FloatArray(width)
+        val minFreq = frequencies.first()
+        val maxFreq = frequencies.last()
+
+        // Create interpolation points (frequency, gain) pairs
+        val points = frequencies.mapIndexed { index, freq ->
+            freq to gains[index].toDouble()
+        }
 
         // For each pixel column (frequency point)
         for (x in 0 until width) {
-            // Convert x position to frequency (logarithmic scale)
-            val freq = xToFrequency(x, width, samplingRate)
-            val omega = 2.0 * PI * freq / samplingRate
+            val freq = xToFrequency(x, width, minFreq, maxFreq)
 
-            var magnitude = 1.0 // Start with unity gain
+            // Find the two nearest bands for interpolation
+            var lowerIndex = 0
+            var upperIndex = frequencies.size - 1
 
-            // Calculate combined response of all bands
-            coeffs.forEachIndexed { i, bandCoeffs ->
-                val gain = gains[i].toDouble()
-                val b0 = bandCoeffs[0]
-                val b1 = bandCoeffs[1]
-                val a1 = bandCoeffs[2]
-
-                // Transfer function for this band
-                val numerator = b0 + b1 * exp(-1.0.i * omega)
-                val denominator = 1.0 - a1 * exp(-1.0.i * omega)
-                val bandResponse = numerator / denominator
-
-                // Apply gain and accumulate
-                magnitude *= (1.0 + gain * (abs(bandResponse) - 1.0))
+            for (i in frequencies.indices) {
+                if (frequencies[i] <= freq) lowerIndex = i
+                if (frequencies[i] >= freq) {
+                    upperIndex = i
+                    break
+                }
             }
 
-            // Convert to decibels
-            response[x] = 20 * log10(magnitude).toFloat()
+            // Linear interpolation between bands
+            val db = if (lowerIndex == upperIndex) {
+                gains[lowerIndex].toDouble()
+            } else {
+                val lowerFreq = frequencies[lowerIndex]
+                val upperFreq = frequencies[upperIndex]
+                val lowerGain = gains[lowerIndex].toDouble()
+                val upperGain = gains[upperIndex].toDouble()
+
+                val alpha = (log10(freq) - log10(lowerFreq)) /
+                        (log10(upperFreq) - log10(lowerFreq))
+                lowerGain * (1 - alpha) + upperGain * alpha
+            }
+
+            response[x] = db.toFloat()
         }
 
         return response

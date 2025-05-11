@@ -1,14 +1,7 @@
 package com.aam.viper4android.ui.component.eq
 
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Path
-import com.aam.viper4android.view.Biquad
-import com.aam.viper4android.view.Complex
-import kotlin.math.cos
 import kotlin.math.exp
 import kotlin.math.ln
-import kotlin.math.pow
-import kotlin.math.sin
 
 object EqualizerHelper {
     const val MIN_DB = -12f
@@ -107,50 +100,50 @@ object EqualizerHelper {
         }
     }
 
-    fun calculateFrequencyResponse(
-        size: Size, gains: List<Float>, frequencyResponse: Path
-    ) {
-        val bands = when (gains.size) {
-            10 -> FREQ_10_BAND
-            15 -> FREQ_15_BAND
-            25 -> FREQ_25_BAND
-            31 -> FREQ_31_BAND
-            else -> throw IllegalArgumentException("Unsupported number of bands: ${gains.size}")
-        }
-        val biquads = Array(gains.size - 1) { index ->
-            Biquad().apply {
-                setHighShelf(bands[index], gains[index + 1] - gains[index])
-            }
-        }
-
-        /*
-         * The filtering is realized with 2nd order high shelf filters, and each
-         * band is realized as a transition relative to the previous band. The
-         * center point for each filter is actually between the bands. 1st band
-         * has no previous band, so it's just a fixed gain.
-         */
-        val gain = 10.0.pow(gains[0] / 20.0)
-        for (i in 0 until 129) {
-            val frequency = reverseProjectX(i / 127.0)
-            val omega = frequency / SAMPLING_RATE * Math.PI * 2
-            val z0 = Complex(cos(omega), sin(omega))
-
-            /* Evaluate the response at frequency z0 */
-
-            /* val z1 = z0.mul(gain) */
-            var tmp = gain
-            for (biquad in biquads) {
-                tmp *= biquad.evaluateTransfer(z0).rho()
-            }
-
-            /* Magnitude response, dB */
-            val decibel = lin2dB(tmp)
-            val x = projectX(frequency) * size.width
-            val y = projectY(decibel) * size.height
-
-            if (i == 0) frequencyResponse.moveTo(x, y) else frequencyResponse.lineTo(x, y)
-        }
-    }
+//    fun calculateFrequencyResponse(
+//        size: Size, gains: List<Float>, frequencyResponse: Path
+//    ) {
+//        val bands = when (gains.size) {
+//            10 -> FREQ_10_BAND
+//            15 -> FREQ_15_BAND
+//            25 -> FREQ_25_BAND
+//            31 -> FREQ_31_BAND
+//            else -> throw IllegalArgumentException("Unsupported number of bands: ${gains.size}")
+//        }
+//        val biquads = Array(gains.size - 1) { index ->
+//            Biquad().apply {
+//                setHighShelf(bands[index], gains[index + 1] - gains[index])
+//            }
+//        }
+//
+//        /*
+//         * The filtering is realized with 2nd order high shelf filters, and each
+//         * band is realized as a transition relative to the previous band. The
+//         * center point for each filter is actually between the bands. 1st band
+//         * has no previous band, so it's just a fixed gain.
+//         */
+//        val gain = 10.0.pow(gains[0] / 20.0)
+//        for (i in 0 until 129) {
+//            val frequency = reverseProjectX(i / 127.0)
+//            val omega = frequency / SAMPLING_RATE * Math.PI * 2
+//            val z0 = Complex(cos(omega), sin(omega))
+//
+//            /* Evaluate the response at frequency z0 */
+//
+//            /* val z1 = z0.mul(gain) */
+//            var tmp = gain
+//            for (biquad in biquads) {
+//                tmp *= biquad.evaluateTransfer(z0).rho()
+//            }
+//
+//            /* Magnitude response, dB */
+//            val decibel = lin2dB(tmp)
+//            val x = projectX(frequency) * size.width
+//            val y = projectY(decibel) * size.height
+//
+//            if (i == 0) frequencyResponse.moveTo(x, y) else frequencyResponse.lineTo(x, y)
+//        }
+//    }
 
     private fun reverseProjectX(position: Double): Double {
         val minimumPosition = ln(MIN_FREQ)

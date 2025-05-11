@@ -160,11 +160,11 @@ fun EqualizerEditor(
             }
 
             val frequencyResponse = Path()
-            EqualizerHelper.calculateFrequencyResponse(
-                size = size,
-                gains = gains,
-                frequencyResponse = frequencyResponse
-            )
+//            EqualizerHelper.calculateFrequencyResponse(
+//                size = size,
+//                gains = gains,
+//                frequencyResponse = frequencyResponse
+//            )
 
             // gradient
             drawPath(
