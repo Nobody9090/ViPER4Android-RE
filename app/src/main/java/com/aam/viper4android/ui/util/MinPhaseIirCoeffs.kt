@@ -1,5 +1,12 @@
 package com.aam.viper4android.ui.util
 
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
+
 private val BAND_10_FREQUENCIES = listOf(
     31.5,
     62.0,
@@ -69,18 +76,77 @@ class MinPhaseIirCoeffs(
     val bands: Bands,
     val samplingRate: Int,
 ) {
-    fun getCoeffs(): List<List<Double>> {
-        val coeffs = mutableListOf<List<Double>>()
+    fun getCoeffs(): List<DoubleArray> {
+        val bandwidthOctaves = when (bands) {
+            Bands.BAND_10 -> 3.0 / 3.0
+            Bands.BAND_15 -> 2.0 / 3.0
+            Bands.BAND_31 -> 1.0 / 3.0
+        }
+
+        val coeffs = mutableListOf<DoubleArray>()
         for (frequency in bands.frequencies) {
-            val normalizedFrequency = frequency / (samplingRate / 2.0)
-            val coeff = DoubleArray(4)
-            coeff[0] = 1.0
-            coeff[1] = -2.0 * Math.cos(2.0 * Math.PI * normalizedFrequency)
-            coeff[2] = 1.0
-            coeff[3] = -Math.exp(-2.0 * Math.PI * normalizedFrequency)
-            coeffs.add(coeff.toList())
+            // Calculate band edges
+            val (lowerEdge, upperEdge) = calculateBandEdges(
+                frequency,
+                bandwidthOctaves
+            )
+
+            // Convert to radians
+            val centerRadians = 2.0 * PI * frequency / samplingRate
+            val lowerRadians = 2.0 * PI * lowerEdge / samplingRate
+
+            // Trigonometric terms
+            val cosCenter = cos(centerRadians)
+            val cosLower = cos(lowerRadians)
+            val sinLower = sin(lowerRadians)
+            val cosCenterSq = cosCenter * cosCenter
+            val cosLowerSq = cosLower * cosLower
+
+            // Intermediate terms
+            val a = cosCenter * cosLower
+            val b = cosCenterSq / 2.0
+            val c = sinLower * sinLower
+
+            // Quadratic coefficients
+            val coeffA = (b - a) + (0.5 - c)
+            val coeffB = c + (b + cosLowerSq - a - 0.5)
+            val coeffC = 0.125 * (cosCenterSq + 1.0) - 0.25 * (a + c)
+
+            // Solve and store coefficients
+            val root = solveQuadratic(coeffA, coeffB, coeffC)
+            if (root != null) {
+                val bandCoeffs = DoubleArray(4).apply {
+                    this[0] = root * 2.0 // b0
+                    this[1] = 0.5 - root // b1
+                    this[2] = (root + 0.5) * cosCenter * 2.0 // a1
+                    this[3] = 1.0 // a0
+                }
+                coeffs.add(bandCoeffs)
+            }
         }
         return coeffs
+    }
+
+    private fun calculateBandEdges(centerFreq: Double, bandwidthOctaves: Double): Pair<Double, Double> {
+        val factor = 2.0.pow(bandwidthOctaves / 2.0)
+        val lowerEdge = centerFreq / factor
+        val upperEdge = centerFreq * factor
+        return Pair(lowerEdge, upperEdge)
+    }
+
+    private fun solveQuadratic(a: Double, b: Double, c: Double): Double? {
+        val discriminant = (b * b) / (4.0 * a * a) - (c / a)
+
+        if (discriminant >= 0.0) {
+            return null // No real solution
+        }
+
+        val sqrtDiscriminant = sqrt(-discriminant)
+        val solution1 = -b / (2.0 * a) - sqrtDiscriminant
+        val solution2 = -b / (2.0 * a) + sqrtDiscriminant
+
+        // Return the more stable solution (smaller absolute value)
+        return if (abs(solution1) < abs(solution2)) solution1 else solution2
     }
 
     enum class Bands(

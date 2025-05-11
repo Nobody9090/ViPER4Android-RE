@@ -30,6 +30,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
+import com.aam.viper4android.ui.util.MinPhaseIirCoeffs
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.exp
+import kotlin.math.log10
+import kotlin.math.sin
 
 private fun getBandSpacing(size: Size): Float {
     return getBandSpacing(size.width)
@@ -43,11 +49,32 @@ private fun getBandSpacing(width: Float): Float {
     return width / (10 + 1)
 }
 
+private fun magnitudeAtFreq(freqHz: Double, sampleRate: Double, coeffs: DoubleArray): Double {
+    val omega = 2.0 * PI * freqHz / sampleRate
+    val ejw = Complex(cos(-omega), sin(-omega))
+
+    val b0 = coeffs[0]
+    val b1 = coeffs[1]
+    val a1 = coeffs[2]
+    val a0 = coeffs[3]
+
+    val numerator = Complex(b0, 0.0) + Complex(b1, 0.0) * ejw
+    val denominator = Complex(a0, 0.0) + Complex(a1, 0.0) * ejw
+
+    return (numerator / denominator).abs()
+}
+
 @Composable
 fun EqualizerPreview(
     modifier: Modifier = Modifier,
     gains: List<Float>
 ) {
+    val coeffs = remember(gains.size) { MinPhaseIirCoeffs(when (gains.size) {
+        10 -> MinPhaseIirCoeffs.Bands.BAND_10
+        15 -> MinPhaseIirCoeffs.Bands.BAND_15
+        31 -> MinPhaseIirCoeffs.Bands.BAND_31
+        else -> throw IllegalArgumentException("Unsupported number of bands: ${gains.size}")
+    }, 44100).getCoeffs() }
     var boxSize by remember { mutableStateOf(Size(0f, 0f)) }
     val bandSpacing = remember(boxSize) { getBandSpacing(boxSize) }
     val innerWidth = remember(bandSpacing, gains) { bandSpacing * (gains.size + 1) }
@@ -71,7 +98,6 @@ fun EqualizerPreview(
             when (gains.size) {
                 10 -> EqualizerHelper.FREQ_10_BAND
                 15 -> EqualizerHelper.FREQ_15_BAND
-                25 -> EqualizerHelper.FREQ_25_BAND
                 31 -> EqualizerHelper.FREQ_31_BAND
                 else -> throw IllegalArgumentException("Unsupported number of bands: ${gains.size}")
             }
@@ -157,6 +183,92 @@ fun EqualizerPreview(
                 )
             }
         }
+    }
+
+    fun calculateFrequencyResponse2(
+        bands: MinPhaseIirCoeffs.Bands,
+        gains: List<Float>,
+        width: Int,
+        samplingRate: Int
+    ): FloatArray {
+        val coeffs = getCoeffs(bands, samplingRate)
+        val response = FloatArray(width)
+
+        // For each pixel column (frequency point)
+        for (x in 0 until width) {
+            // Convert x position to frequency (logarithmic scale)
+            val freq = xToFrequency(x, width, samplingRate)
+            val omega = 2.0 * PI * freq / samplingRate
+
+            // Create complex exponential e^(-iω)
+            val expTerm = Complex(cos(omega), -sin(omega))
+            var magnitude = Complex(1.0, 0.0) // Start with unity gain
+
+            // Calculate combined response of all bands
+            coeffs.forEachIndexed { i, bandCoeffs ->
+                val gain = gains[i].toDouble()
+                val b0 = bandCoeffs[0]
+                val b1 = bandCoeffs[1]
+                val a1 = bandCoeffs[2]
+
+                // Transfer function for this band: H(z) = (b0 + b1*z^-1)/(1 - a1*z^-1)
+                val numerator = Complex(b0, 0.0) + Complex(b1, 0.0) * expTerm
+                val denominator = Complex(1.0, 0.0) - Complex(a1, 0.0) * expTerm
+                val bandResponse = numerator / denominator
+
+                // Apply gain: 1 + gain*(|H(z)| - 1)
+                val bandMagnitude = bandResponse.abs()
+                val scaledResponse = 1.0 + gain * (bandMagnitude - 1.0)
+
+                // Accumulate magnitude
+                magnitude = magnitude * Complex(scaledResponse, 0.0)
+            }
+
+            // Convert to decibels (20*log10)
+            response[x] = 20 * log10(magnitude.real).toFloat()
+        }
+
+        return response
+    }
+
+    fun calculateFrequencyResponse(
+        bands: MinPhaseIirCoeffs.Bands,
+        gains: List<Float>,
+        width: Int,
+        samplingRate: Int
+    ): FloatArray {
+        val coeffs = getCoeffs(bands, samplingRate)
+        val response = FloatArray(width)
+
+        // For each pixel column (frequency point)
+        for (x in 0 until width) {
+            // Convert x position to frequency (logarithmic scale)
+            val freq = xToFrequency(x, width, samplingRate)
+            val omega = 2.0 * PI * freq / samplingRate
+
+            var magnitude = 1.0 // Start with unity gain
+
+            // Calculate combined response of all bands
+            coeffs.forEachIndexed { i, bandCoeffs ->
+                val gain = gains[i].toDouble()
+                val b0 = bandCoeffs[0]
+                val b1 = bandCoeffs[1]
+                val a1 = bandCoeffs[2]
+
+                // Transfer function for this band
+                val numerator = b0 + b1 * exp(-1.0.i * omega)
+                val denominator = 1.0 - a1 * exp(-1.0.i * omega)
+                val bandResponse = numerator / denominator
+
+                // Apply gain and accumulate
+                magnitude *= (1.0 + gain * (abs(bandResponse) - 1.0))
+            }
+
+            // Convert to decibels
+            response[x] = 20 * log10(magnitude).toFloat()
+        }
+
+        return response
     }
 }
 
