@@ -31,8 +31,8 @@ android {
         }
 
         debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+            applicationIdSuffix = ".apk"
+            versionNameSuffix = "-apk"
         }
     }
 
