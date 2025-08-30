@@ -1,20 +1,15 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import com.aam.viper4android.EffectCard
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
-import com.aam.viper4android.ui.ValueSlider
-
-private const val TAG = "MasterLimiterEffect"
+import com.aam.viper4android.ui.component.Effect
+import com.aam.viper4android.ui.component.ValueSlider
+import com.aam.viper4android.vm.MasterLimiterViewModel
 
 private val outputGainSummaryValues = arrayOf(
     "-40.0",
@@ -50,46 +45,43 @@ private val thresholdLimitSummaryValues = arrayOf(
     "0.0"
 )
 
-class MasterLimiterState {
-    var outputGain by mutableStateOf(11)
-    var outputPan by mutableStateOf(50)
-    var thresholdLimit by mutableStateOf(5)
-}
-
 @Composable
-fun MasterLimiterEffect(state: MasterLimiterState) {
-    EffectCard(
-        icon = painterResource(R.drawable.ic_power),
-        name = "Master limiter",
-        enabled = null,
-        onEnabledChange = null
+fun MasterLimiterEffect(
+    viewModel: MasterLimiterViewModel = hiltViewModel()
+) {
+    val outputGain by viewModel.outputGain.collectAsStateWithLifecycle()
+    val outputPan by viewModel.outputPan.collectAsStateWithLifecycle()
+    val thresholdLimit by viewModel.thresholdLimit.collectAsStateWithLifecycle()
+    
+    Effect(
+        icon = painterResource(R.drawable.ic_master_limiter),
+        title = stringResource(R.string.master_limiter),
     ) {
-        Column {
-            ValueSlider(
-                title = "Output gain",
-                summary = outputGainSummaryValues[state.outputGain],
-                summaryUnit = "dB",
-                value = state.outputGain,
-                onValueChange = { state.outputGain = it },
-                valueRange = outputGainSummaryValues.indices
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            ValueSlider(
-                title = "Output pan",
-                summary = "${100 - state.outputPan}:${state.outputPan}",
-                value = state.outputPan,
-                onValueChange = { state.outputPan = it },
-                valueRange = 0..100
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            ValueSlider(
-                title = "Threshold limit",
-                value = state.thresholdLimit,
-                summary = thresholdLimitSummaryValues[state.thresholdLimit],
-                summaryUnit = "dB",
-                onValueChange = { state.thresholdLimit = it },
-                valueRange = 0..5
-            )
-        }
+        ValueSlider(
+            title = stringResource(R.string.master_limiter_output_gain),
+            summary = outputGainSummaryValues[outputGain],
+            summaryUnit = "dB",
+            value = outputGain,
+            onValueChange = viewModel::setOutputGain,
+            onValueReset = viewModel::resetOutputGain,
+            valueRange = outputGainSummaryValues.indices
+        )
+        ValueSlider(
+            title = stringResource(R.string.master_limiter_output_pan),
+            summary = "${100 - outputPan}:${outputPan}",
+            value = outputPan,
+            onValueChange = viewModel::setOutputPan,
+            onValueReset = viewModel::resetOutputPan,
+            valueRange = 0..100
+        )
+        ValueSlider(
+            title = stringResource(R.string.master_limiter_threshold_limit),
+            value = thresholdLimit,
+            summary = thresholdLimitSummaryValues[thresholdLimit],
+            summaryUnit = "dB",
+            onValueChange = viewModel::setThresholdLimit,
+            onValueReset = viewModel::resetThresholdLimit,
+            valueRange = thresholdLimitSummaryValues.indices
+        )
     }
 }

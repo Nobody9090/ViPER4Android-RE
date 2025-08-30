@@ -1,16 +1,25 @@
 package com.aam.viper4android.ui.effect
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
-import com.aam.viper4android.EffectCard
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aam.viper4android.R
-
-class TubeSimulator6N1JState {
-    var enabled by mutableStateOf(false)
-}
+import com.aam.viper4android.ui.component.Effect
+import com.aam.viper4android.vm.TubeSimulator6N1JViewModel
 
 @Composable
-fun TubeSimulator6N1JEffect(state: TubeSimulator6N1JState) {
-    EffectCard(icon = painterResource(R.drawable.ic_tubeamp), name = "Tube simulator (6N1J)", enabled = state.enabled, onEnabledChange = { state.enabled = it })
+fun TubeSimulator6N1JEffect(
+    viewModel: TubeSimulator6N1JViewModel = hiltViewModel()
+) {
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
 
+    Effect(
+        icon = painterResource(R.drawable.ic_tube),
+        title = stringResource(R.string.tube_simulator_6n1j),
+        checked = enabled,
+        onCheckedChange = viewModel::setEnabled
+    )
 }
