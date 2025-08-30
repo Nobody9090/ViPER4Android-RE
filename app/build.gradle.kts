@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("androidx.room")
+    alias(libs.plugins.android.x.room)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
 }
