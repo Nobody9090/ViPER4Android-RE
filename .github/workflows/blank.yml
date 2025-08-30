@@ -23,10 +23,10 @@ jobs:
         run: chmod +x gradlew
         
       - name: Build with Gradle
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleRelease
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "V4A Dev (#${{github.run_number}})"
-          path: app/build/outputs/apk/release/*.apk
+          name: app-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
