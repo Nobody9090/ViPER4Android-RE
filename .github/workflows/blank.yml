@@ -23,7 +23,7 @@ jobs:
         run: chmod +x build.gradle.kts
         
       - name: Build with Gradle
-        run: ./build.gradle.kts
+        run: build.gradle.kts
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
